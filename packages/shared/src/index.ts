@@ -46,3 +46,51 @@ export interface PublicUser {
   status: 'active' | 'disabled';
   mustChangePassword: boolean;
 }
+
+/**
+ * Allowed file extensions and the Content-Type the content server sends for each
+ * (SRD Table 3.21, FR-12, FR-25). Anything else is rejected at upload.
+ */
+export const CONTENT_TYPES: Readonly<Record<string, string>> = {
+  '.html': 'text/html; charset=utf-8',
+  '.htm': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
+  '.mp3': 'audio/mpeg',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.ogg': 'audio/ogg',
+  '.wav': 'audio/wav',
+};
+
+/** Initial upload limits (SRD Table 3.21); adjustable by administrators later (FR-35). */
+export interface UploadLimits {
+  maxArchiveBytes: number;
+  maxFileBytes: number;
+  maxFiles: number;
+  maxTotalBytes: number;
+  /** Reject if total uncompressed size / total compressed size exceeds this. */
+  maxCompressionRatio: number;
+}
+
+export const DEFAULT_UPLOAD_LIMITS: UploadLimits = {
+  maxArchiveBytes: 20 * 1024 * 1024,
+  maxFileBytes: 5 * 1024 * 1024,
+  maxFiles: 500,
+  maxTotalBytes: 100 * 1024 * 1024,
+  maxCompressionRatio: 100,
+};
