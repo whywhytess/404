@@ -206,6 +206,8 @@ describe('FR-15 rule warnings', () => {
         'EXTERNAL_STYLE:css/style.css',
         'EXTERNAL_REQUEST:js/app.js',
         'EVAL:js/app.js',
+        'WORKER:js/app.js',
+        'BLOB_URL:js/app.js',
       ]),
     );
     // Exactly one inline-script warning: the JSON data block and the commented-out script are ignored.

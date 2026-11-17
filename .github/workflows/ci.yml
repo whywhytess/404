@@ -70,8 +70,9 @@ jobs:
             -s3.config=/etc/seaweedfs/s3.json -master.volumeSizeLimitMB=256
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:59000/healthz && break; sleep 1; done
       - run: pnpm install --frozen-lockfile
-      - run: npx playwright install --with-deps chromium
-      - run: pnpm test:e2e
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: pnpm fixtures:external
+      - run: npx playwright test
       - uses: actions/upload-artifact@v4
         if: always()
         with:

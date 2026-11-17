@@ -104,7 +104,7 @@ export const FIXTURES: Record<string, () => Buffer> = {
       { name: 'img/logo.png', data: PNG, method: 0 },
       {
         name: 'js/app.js',
-        data: 'fetch("https://api.example.com/data").then(r=>r.json()); eval("1+1");',
+        data: 'fetch("https://api.example.com/data").then(r=>r.json()); eval("1+1"); const w = new Worker("w.js"); img.src = URL.createObjectURL(blob);',
       },
     ]),
 };

@@ -14,13 +14,28 @@ const S3_ENV = {
 
 export default defineConfig({
   testDir: 'tests',
-  testMatch: ['e2e/**/*.spec.ts', 'security/**/*.spec.ts'],
+  testMatch: ['e2e/**/*.spec.ts', 'security/**/*.spec.ts', 'compatibility/**/*.spec.ts'],
   fullyParallel: false,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   globalSetup: './tests/e2e/global-setup.ts',
   use: { baseURL: PLATFORM_URL, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // SRD 3.10: three key security cases and the sample sites also run in Firefox and WebKit.
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: ['security/**/*.spec.ts', 'compatibility/**/*.spec.ts'],
+      grep: /@cross/,
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: ['security/**/*.spec.ts', 'compatibility/**/*.spec.ts'],
+      grep: /@cross/,
+    },
+  ],
   webServer: [
     {
       // Run binaries directly (not via pnpm) so Playwright can stop them cleanly.
@@ -31,6 +46,8 @@ export default defineConfig({
       env: {
         NODE_ENV: 'test',
         API_PORT: '3000',
+        // Many synthetic sign-ins per run; production keeps the default of 10.
+        LOGIN_RATE_LIMIT: '1000',
         PLATFORM_ORIGIN: PLATFORM_URL,
         DATABASE_URL: E2E_DATABASE_URL,
         SESSION_SECRET: 'e2e-session-secret-that-is-long-enough-0123456789',

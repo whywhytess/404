@@ -185,6 +185,11 @@ export function scanJs(c: Collector, file: string, js: string) {
   )) {
     c.add('EXTERNAL_SCRIPT', file, shorten(m[1]!));
   }
+  if (/\bnew\s+(?:Shared)?Worker\s*\(/.test(js)) c.add('WORKER', file, 'new Worker()');
+  if (/\bserviceWorker\s*\.\s*register\s*\(/.test(js))
+    c.add('WORKER', file, 'navigator.serviceWorker.register()');
+  if (/\bURL\s*\.\s*createObjectURL\s*\(/.test(js))
+    c.add('BLOB_URL', file, 'URL.createObjectURL()');
   if (/\beval\s*\(/.test(js)) c.add('EVAL', file, 'eval()');
   if (/\bnew\s+Function\s*\(/.test(js)) c.add('EVAL', file, 'new Function()');
 }

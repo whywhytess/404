@@ -87,6 +87,15 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 - [DONE] T-021 FR-32 – FR-35: storage quota, hourly upload limit, per-subdomain request limit,
   admin settings + usage (API and UI); migration `0003_resource_control`. ST-19 PASS.
 
+- [DONE] T-020 F01–F04 (developer-written; Bootstrap MIT and OFL font with licence files) pass
+  in Chromium, Firefox and WebKit. 6 unmodified MDN samples (pinned commit, SHA-256, not
+  redistributed) measured: 2/6 run unchanged — see `docs/COMPATIBILITY_REPORT.md`.
+- Cross-browser: Playwright projects `firefox` and `webkit` run the `@cross` tests (ST-02, ST-07,
+  ST-11, F01–F04, external samples). 58 browser tests pass across the three engines.
+- Validator: new `WORKER` and `BLOB_URL` warnings (found by the external-sample measurement).
+- `LOGIN_RATE_LIMIT` env (default 10) so automated runs can sign in often; production unchanged.
+- **Open decision for the user:** allow `blob:` in `img-src`/`media-src`? (Compatibility report §3.2)
+
 ### Verification
 
 | Command | Result |
@@ -102,7 +111,7 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 | `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
 | `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → view site on its own `*.localhost` origin (JS runs, `document.cookie` empty) → review iframe → close |
 | `pnpm test:security` (Chromium) | PASS — 14 tests (ST-01–ST-12, positive controls) |
-| `npx playwright test` (e2e + security) | PASS — 19 tests |
+| `npx playwright test` (all projects) | PASS — 58 tests (Chromium all; Firefox/WebKit `@cross`) |
 | GitHub Actions | PASS — check + e2e jobs (run 44057639696) |
 
 ### Risks / decisions
@@ -117,6 +126,7 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 
 ### Next 3 tasks
 
-1. T-020 F01–F04 sample sites (developer-written) + 4–6 unmodified MDN samples (licence check first).
-2. Cross-browser runs (Firefox, WebKit) for ST-02, ST-07, ST-11 and the samples.
-3. Deployment preparation (production compose, reverse proxy, TLS) — needs two domains + VPS from the user.
+1. Deployment preparation (production images, compose, reverse proxy with host allow-list, TLS) —
+   needs two registered domains + a VPS from the user to finish.
+2. T-022 FR-37 retention deletion (410, tombstones, retry, audit) with a simulated clock.
+3. Backup/restore drill and user/installation manuals.

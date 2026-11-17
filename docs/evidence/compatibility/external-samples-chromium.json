@@ -1,0 +1,122 @@
+{
+  "measuredAt": "2026-11-17T10:01:47.303Z",
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "X1",
+      "title": "Can store (fetch JSON product list)",
+      "source": "javascript/apis/fetching-data/can-store@2197326",
+      "browser": "chromium",
+      "accepted": true,
+      "uploadStatus": 201,
+      "rejectionCodes": [],
+      "rejections": [],
+      "warningCodes": ["BLOB_URL", "EXTERNAL_STYLE"],
+      "warnings": ["BLOB_URL can-script.js", "EXTERNAL_STYLE index.html"],
+      "entry": "index.html",
+      "blockedDirectives": ["style-src-elem", "img-src"],
+      "violations": [
+        "style-src-elem https://fonts.googleapis.com/css?family=Cherry+Swash|Raleway",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob",
+        "img-src blob"
+      ],
+      "pageErrors": [],
+      "runsUnchanged": false
+    },
+    {
+      "id": "X2",
+      "title": "Bouncing balls (canvas animation)",
+      "source": "javascript/oojs/bouncing-balls@2197326",
+      "browser": "chromium",
+      "accepted": true,
+      "uploadStatus": 201,
+      "rejectionCodes": [],
+      "rejections": [],
+      "warningCodes": [],
+      "warnings": [],
+      "entry": "index-finished.html",
+      "blockedDirectives": [],
+      "violations": [],
+      "pageErrors": [],
+      "runsUnchanged": true
+    },
+    {
+      "id": "X3",
+      "title": "Document and website structure (static page)",
+      "source": "html/introduction-to-html/document_and_website_structure@2197326",
+      "browser": "chromium",
+      "accepted": true,
+      "uploadStatus": 201,
+      "rejectionCodes": [],
+      "rejections": [],
+      "warningCodes": ["EXTERNAL_STYLE"],
+      "warnings": ["EXTERNAL_STYLE index.html"],
+      "entry": "index.html",
+      "blockedDirectives": ["style-src-elem"],
+      "violations": [
+        "style-src-elem https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Sonsie+One"
+      ],
+      "pageErrors": [],
+      "runsUnchanged": false
+    },
+    {
+      "id": "X4",
+      "title": "Web Storage personal greeting",
+      "source": "javascript/apis/client-side-storage/web-storage@2197326",
+      "browser": "chromium",
+      "accepted": true,
+      "uploadStatus": 201,
+      "rejectionCodes": [],
+      "rejections": [],
+      "warningCodes": [],
+      "warnings": [],
+      "entry": "personal-greeting.html",
+      "blockedDirectives": [],
+      "violations": [],
+      "pageErrors": [],
+      "runsUnchanged": true
+    },
+    {
+      "id": "X5",
+      "title": "Web Workers (prime generator)",
+      "source": "javascript/asynchronous/workers/finished@2197326",
+      "browser": "chromium",
+      "accepted": true,
+      "uploadStatus": 201,
+      "rejectionCodes": [],
+      "rejections": [],
+      "warningCodes": ["WORKER"],
+      "warnings": ["WORKER main.js"],
+      "entry": "index.html",
+      "blockedDirectives": ["worker-src"],
+      "violations": [
+        "worker-src http://jh7vfu039ejr.localhost:4100/_t/eyJ2IjoxLCJzIjoiamg3dmZ1MDM5ZWpyIiwidSI6IjExYzQxODI1LTY2ZjMtNGQ3MS1hZmU5LTU0ZWI2ZWEzNjQ2ZSIsInIiOiJzdHVkZW50IiwiaWF0IjoxNzk0OTA5NzA1LCJleHAiOjE3OTQ5MTMzMDV9.KCWAwCWanJOM297NG4c0YDRUexgA75UiVziUMZ3ZzvE/generate.js"
+      ],
+      "pageErrors": [],
+      "runsUnchanged": false
+    },
+    {
+      "id": "X6",
+      "title": "Custom video player",
+      "source": "javascript/apis/video-audio/finished@2197326",
+      "browser": "chromium",
+      "accepted": false,
+      "uploadStatus": 413,
+      "rejectionCodes": ["ARCHIVE_TOO_LARGE"],
+      "rejections": ["ARCHIVE_TOO_LARGE"],
+      "warningCodes": [],
+      "warnings": [],
+      "runsUnchanged": false
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+[
+  { "code": "CAT201", "title": "Web Programming", "credits": 4 },
+  { "code": "CAT203", "title": "Database Systems", "credits": 4 },
+  { "code": "CAT304", "title": "Human-Computer Interaction", "credits": 3 },
+  { "code": "CAT404", "title": "Software Engineering Major Project", "credits": 6 }
+]

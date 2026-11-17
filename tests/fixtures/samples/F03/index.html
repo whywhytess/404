@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Course finder</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="js/finder.js" defer></script>
+  </head>
+  <body>
+    <h1>Course finder</h1>
+    <form id="filter">
+      <label for="q">Filter (handled by JavaScript)</label> <input id="q" name="q" />
+      <button type="submit">Filter</button>
+    </form>
+    <ul id="courses">
+      <li>Loading…</li>
+    </ul>
+    <h2>Search page</h2>
+    <form action="results.html" method="get">
+      <label for="code">Course code</label> <input id="code" name="code" />
+      <button type="submit">Search</button>
+    </form>
+  </body>
+</html>

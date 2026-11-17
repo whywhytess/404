@@ -9,8 +9,8 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | Problem | Evidence / finding | FR / NFR | Design | Verification | Result |
 | --- | --- | --- | --- | --- | --- |
 | P1 Setting up ZIP submissions is slow and inconsistent | Document analysis D5; interviews/questionnaire **not yet conducted** (SRD 3.4.2 TODO) | FR-10, FR-16, FR-27, FR-28, NFR-U1 | Upload Validator, Version Management, Instructor Review | UC tests; developer-run workflow benchmark | NOT STARTED |
-| P2 Shared hosting lets one site affect others / the platform | Document analysis D3; origin model | FR-21–23, NFR-S2, NFR-S3 | ADR-001, ADR-006 | ST-01–04, ST-16–18 | NOT STARTED |
-| P3 Per-site security policies are weak or missing | Document analysis D2 | FR-24–26, NFR-S1, NFR-C1 | ADR-007, ADR-008 | ST-05–13, header consistency, F01–F04 | NOT STARTED |
+| P2 Shared hosting lets one site affect others / the platform | Document analysis D3; origin model | FR-21–23, NFR-S2, NFR-S3 | ADR-001, ADR-006 | ST-01–04, ST-16–18 | All PASS locally (ST-02 in 3 engines); staging repeat of ST-01/02/18 pending |
+| P3 Per-site security policies are weak or missing | Document analysis D2 | FR-24–26, NFR-S1, NFR-C1 | ADR-007, ADR-008 | ST-05–13, header consistency, F01–F04, external samples | ST-05–ST-13 PASS; F01–F04 12/12; restriction cost measured (2/6 external run unchanged) |
 
 ## Functional requirements
 
@@ -30,7 +30,7 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | FR-12 Absolute paths, `..`, symlinks, forbidden types | M | DONE | `zip-validator/src/paths.ts`, `index.ts` | `validator.test.ts` ST-14/ST-15; e2e zip-slip rejection |
 | FR-13 Root `index.html`, single folder strip, ignore `__MACOSX`/`.DS_Store` | M | DONE | `resolveRoot`, `isIgnored` | `validator.test.ts` FR-13 |
 | FR-14 Rejection reason with file name | M | DONE | `zip-validator/src/messages.ts`; UI `SubmissionPanel` | `validator.test.ts`; `uploads.test.ts`; e2e |
-| FR-15 Rule warnings | S | DONE (heuristic, advisory) | `zip-validator/src/warnings.ts` | `validator.test.ts` FR-15; e2e |
+| FR-15 Rule warnings | S | DONE (heuristic, advisory; incl. workers and blob URLs) | `zip-validator/src/warnings.ts` | `validator.test.ts` FR-15; e2e |
 | FR-16 Numbered version, publish immediately | M | DONE | `services/publish.ts` | `uploads.test.ts` |
 | FR-17 Version history | S | DONE | `GET /api/assignments/:id/submission`, `GET /api/submissions/:id/versions`; UI table | `uploads.test.ts`; e2e |
 | FR-18 Roll back to previous (undoable) while open | S | DONE | `rollbackSubmission` | `uploads.test.ts`; e2e |
@@ -63,7 +63,7 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | NFR-S3 Signed, bound, expiring tokens | DONE | `security.test.ts` (1 h / 4 h, binding, tamper, expiry) |
 | NFR-S4 Slow salted hash; HttpOnly/Secure/SameSite=Lax cookie | PARTIAL — Argon2id and HttpOnly/SameSite/no-Domain tested; `Secure` set when `NODE_ENV=production` (to verify on staging) | `auth.test.ts` |
 | NFR-S5 HTTPS, TLS 1.2+, HSTS | NOT STARTED | Phase 7 |
-| NFR-C1 F01–F04 work in 3 engines | NOT STARTED | F01–F04 written by developer (SRD 3.10) |
+| NFR-C1 F01–F04 work in 3 engines | DONE | 12/12 (F01–F04 × Chromium, Firefox, WebKit); external samples: 2/6 run unchanged — `docs/COMPATIBILITY_REPORT.md` |
 | NFR-R1 Failed upload never changes published version | DONE | Fault injection in `uploads.test.ts` (storage failure mid-upload, DB failure before commit) |
 | NFR-R2 Backup and restore | NOT STARTED | Phase 7 |
 | NFR-U1 Publish in ≤ 3 steps | NOT STARTED | Phase 2 UI |

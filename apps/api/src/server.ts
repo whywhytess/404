@@ -1,6 +1,7 @@
 import { loadConfig } from './config.js';
 import { createDb } from './db/index.js';
 import { createApp } from './app.js';
+import { DEFAULT_RATE_LIMITS } from './middleware/rate-limit.js';
 import { createLogger } from './logger.js';
 import { S3ObjectStore } from '@webcove/storage';
 import { parseTokenKey } from '@webcove/security';
@@ -25,6 +26,7 @@ const app = createApp({
   sessionSecret: config.SESSION_SECRET,
   secureCookie: config.NODE_ENV === 'production',
   trustProxy: config.TRUST_PROXY,
+  rateLimits: { ...DEFAULT_RATE_LIMITS, loginMax: config.LOGIN_RATE_LIMIT },
   store,
   tokenKey: parseTokenKey(config.TOKEN_SECRET),
   contentUrlPattern: config.CONTENT_URL_PATTERN,

@@ -7,6 +7,8 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
   TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+  /** Sign-in attempts per IP + e-mail per 15 minutes (raise only for automated test runs). */
+  LOGIN_RATE_LIMIT: z.coerce.number().int().positive().default(10),
   /** Shared with the content server; at least 32 bytes (base64 or text). */
   TOKEN_SECRET: z.string().min(32),
   /** Public URL of a submission, with {sub} for the subdomain, e.g. https://{sub}.example-usercontent.net */

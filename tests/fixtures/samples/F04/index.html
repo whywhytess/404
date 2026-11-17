@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Event sign-up</title>
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css" />
+  </head>
+  <body class="p-4">
+    <div class="container">
+      <h1 class="mb-3">Hackathon 2027</h1>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signup">
+        Sign up
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#details"
+        aria-expanded="false"
+        aria-controls="details"
+      >
+        Details
+      </button>
+      <div class="collapse mt-3" id="details">
+        <div class="card card-body">Saturday, 9 am – 6 pm, School of Computer Sciences.</div>
+      </div>
+      <div
+        class="modal fade"
+        id="signup"
+        tabindex="-1"
+        aria-labelledby="signup-title"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title fs-5" id="signup-title">Sign up</h2>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form id="form">
+                <label class="form-label" for="name">Name</label
+                ><input class="form-control" id="name" required />
+              </form>
+              <p id="thanks" class="mt-2"></p>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" form="form" class="btn btn-primary">Register</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

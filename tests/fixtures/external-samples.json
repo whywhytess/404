@@ -1,0 +1,287 @@
+{
+  "description": "Unmodified external samples from openly licensed learning material (SRD 3.10). Files are downloaded at test time from the pinned commit and verified by SHA-256; they are not stored in this repository.",
+  "samples": [
+    {
+      "id": "X1",
+      "title": "Can store (fetch JSON product list)",
+      "sourceRepository": "https://github.com/mdn/learning-area",
+      "sourcePath": "javascript/apis/fetching-data/can-store",
+      "sourceCommit": "21973263ba859ff3477919087b488157f9d618a6",
+      "license": "CC0-1.0",
+      "licenseFile": "https://github.com/mdn/learning-area/blob/21973263ba859ff3477919087b488157f9d618a6/LICENSE",
+      "assetsNote": "Icons are credited in the page to Noun Project creators; product photos have no stated source. Not redistributed in this repository.",
+      "files": [
+        {
+          "path": "can-script.js",
+          "size": 7754,
+          "sha256": "2154dbcacdddc06e43530f2afa4136357f8c23d45a47d0fbc3f29e485cb1e369"
+        },
+        {
+          "path": "can-style.css",
+          "size": 3195,
+          "sha256": "a6dde50a5d42c646979de9ea2fcdc218b7fb9e2de1fa5ee5f40f86067b541f87"
+        },
+        {
+          "path": "icons/bean_can.png",
+          "size": 4450,
+          "sha256": "ee6bbde56c31dbca99128f4b2c181ef3f6d025bc9c4a7ec0f61b1c9a6fb410b6"
+        },
+        {
+          "path": "icons/meat.png",
+          "size": 3001,
+          "sha256": "cc009d6c62cf687f870b51430200ff4594440cc73d1ea000fa1692a14be8aacc"
+        },
+        {
+          "path": "icons/soup.png",
+          "size": 2209,
+          "sha256": "33029b79d7402a07f3f04e3c1bb246e48d618bb28d41e444c6a8ad995915f602"
+        },
+        {
+          "path": "icons/vegetable.png",
+          "size": 2946,
+          "sha256": "ba37afd81f4d6c69dc065f5c582fceebf97f76d3fa4525129d27cf9141d7ee36"
+        },
+        {
+          "path": "images/beans.jpg",
+          "size": 33462,
+          "sha256": "725f231db2a2d0df1d5aa9e8efaa3b2f087c91cb24c7c70ebd3b2f07a80b4a7d"
+        },
+        {
+          "path": "images/carrotcoriander.jpg",
+          "size": 85066,
+          "sha256": "41e1b04591de35f3b5b0ad5ddb1ce94313ee2a274ff4cd99521a3b1e64c7adb9"
+        },
+        {
+          "path": "images/chickennoodle.jpg",
+          "size": 25593,
+          "sha256": "6cdeefd1f0e33d76e514ef6ca2783f66ba00ae842c38f4d631b9cabcdaec6bc9"
+        },
+        {
+          "path": "images/cornedbeef.jpg",
+          "size": 31247,
+          "sha256": "7c0fc34899580dded8a69de179ec218517d6929d8ca7c3d88eb6c497d17e835f"
+        },
+        {
+          "path": "images/gardenpeas.jpg",
+          "size": 63349,
+          "sha256": "476117fb3f07e5f9daf48a8977069180766ad1e1309395d7a37b64215259d1b6"
+        },
+        {
+          "path": "images/hotdogs.jpg",
+          "size": 38622,
+          "sha256": "2e49d70c22841c75822b56cb72bcead58541775179ffb0f23ec373814dcddfb5"
+        },
+        {
+          "path": "images/kidney.jpg",
+          "size": 32328,
+          "sha256": "34423bff0cc178d63ba04f87d5196d1c76869cfe3004977520b0358e50da7db5"
+        },
+        {
+          "path": "images/mushypeas.jpg",
+          "size": 25131,
+          "sha256": "6b51d40ddd9cfff337f0228ee6841b7529c5c5bc0067597f21046b611a530591"
+        },
+        {
+          "path": "images/refried.jpg",
+          "size": 19789,
+          "sha256": "75712ee52797552020da2db9b9bb673948fa1e4b59f28eed175183a07bc80630"
+        },
+        {
+          "path": "images/spam.jpg",
+          "size": 47217,
+          "sha256": "604eea7d04e88c56dc90cb052e51af3cee8cf57fbb13d76b8e169b75031664c7"
+        },
+        {
+          "path": "images/tomato.jpg",
+          "size": 122609,
+          "sha256": "c14aaafc2c14162d13979c8afe741c85674530298c071c4f486acd6be799b378"
+        },
+        {
+          "path": "images/tomatosoup.jpg",
+          "size": 49669,
+          "sha256": "5ebb9adecddeeebc3996168a456f8912509af7370f5f190bafd6c1c986ada480"
+        },
+        {
+          "path": "index.html",
+          "size": 1625,
+          "sha256": "782147f341c3370e369d16b03e825f05f90195243bee595866b3d9397104f7dd"
+        },
+        {
+          "path": "products.json",
+          "size": 1348,
+          "sha256": "50a5beea7c05a002338e31084825bca31a039032c03678d20a38ea6c29727876"
+        }
+      ]
+    },
+    {
+      "id": "X2",
+      "title": "Bouncing balls (canvas animation)",
+      "sourceRepository": "https://github.com/mdn/learning-area",
+      "sourcePath": "javascript/oojs/bouncing-balls",
+      "sourceCommit": "21973263ba859ff3477919087b488157f9d618a6",
+      "license": "CC0-1.0",
+      "licenseFile": "https://github.com/mdn/learning-area/blob/21973263ba859ff3477919087b488157f9d618a6/LICENSE",
+      "assetsNote": "Code only.",
+      "files": [
+        {
+          "path": "index-finished.html",
+          "size": 341,
+          "sha256": "70f6593280a6ef1bd305d2608f7814ecd4ee04dd240d2abed3e8cc1762021d1e"
+        },
+        {
+          "path": "index.html",
+          "size": 331,
+          "sha256": "bbafdc6c9c07417966826b46c8f2026fc4b1c6e846d18e43528da6864b2ba637"
+        },
+        {
+          "path": "main-finished.js",
+          "size": 2185,
+          "sha256": "b69da83e1f70986a9406dd15b70142513a441c134e907d180885d08358971972"
+        },
+        {
+          "path": "main.js",
+          "size": 472,
+          "sha256": "3fcf2f3da8163749249e778f3f36b11a73726435b5713bee22ac42018603f959"
+        },
+        {
+          "path": "style.css",
+          "size": 331,
+          "sha256": "6bc973d6226e10a19b754f35e88a3835f5258b48ed4885cc69918277047b069d"
+        }
+      ]
+    },
+    {
+      "id": "X3",
+      "title": "Document and website structure (static page)",
+      "sourceRepository": "https://github.com/mdn/learning-area",
+      "sourcePath": "html/introduction-to-html/document_and_website_structure",
+      "sourceCommit": "21973263ba859ff3477919087b488157f9d618a6",
+      "license": "CC0-1.0",
+      "licenseFile": "https://github.com/mdn/learning-area/blob/21973263ba859ff3477919087b488157f9d618a6/LICENSE",
+      "assetsNote": "Code only; links a Google Fonts stylesheet.",
+      "files": [
+        {
+          "path": "index.html",
+          "size": 3525,
+          "sha256": "8623d0ff8d0696128844a2315d8c23840cf839d52fab09fcd06eabb3e5e966ec"
+        },
+        {
+          "path": "style.css",
+          "size": 1542,
+          "sha256": "7da8ec4c700672e169dfd95a03bebacbcb31a6a595189854d91393f6a6dd0ee8"
+        }
+      ]
+    },
+    {
+      "id": "X4",
+      "title": "Web Storage personal greeting",
+      "sourceRepository": "https://github.com/mdn/learning-area",
+      "sourcePath": "javascript/apis/client-side-storage/web-storage",
+      "sourceCommit": "21973263ba859ff3477919087b488157f9d618a6",
+      "license": "CC0-1.0",
+      "licenseFile": "https://github.com/mdn/learning-area/blob/21973263ba859ff3477919087b488157f9d618a6/LICENSE",
+      "assetsNote": "Code only.",
+      "files": [
+        {
+          "path": "index.html",
+          "size": 250,
+          "sha256": "a26dc9638765ee7788cf67c1be39bb9790edaab48cd77b375807c8a50b7909c9"
+        },
+        {
+          "path": "index.js",
+          "size": 2356,
+          "sha256": "de1f43756a30f4ca8457bc325fab24ee7d147212a4add595e995b1af2af05014"
+        },
+        {
+          "path": "personal-greeting.html",
+          "size": 2976,
+          "sha256": "2cc2d4076cd8097a11342fa5fc0602c297904355f5b2f5a276eae6886b8fb142"
+        }
+      ]
+    },
+    {
+      "id": "X5",
+      "title": "Web Workers (prime generator)",
+      "sourceRepository": "https://github.com/mdn/learning-area",
+      "sourcePath": "javascript/asynchronous/workers/finished",
+      "sourceCommit": "21973263ba859ff3477919087b488157f9d618a6",
+      "license": "CC0-1.0",
+      "licenseFile": "https://github.com/mdn/learning-area/blob/21973263ba859ff3477919087b488157f9d618a6/LICENSE",
+      "assetsNote": "Code only.",
+      "files": [
+        {
+          "path": "generate.js",
+          "size": 576,
+          "sha256": "8fb4f3d16db70b89e989e2b1081f46df05ba6a8e7df9f63f97d0b0318a469cac"
+        },
+        {
+          "path": "index.html",
+          "size": 677,
+          "sha256": "bced420ffc4fd067aca69618b1ecca29b860aef7ab1fa9abbd028c4c11efb84a"
+        },
+        {
+          "path": "main.js",
+          "size": 1075,
+          "sha256": "1860085201f9002227c32abc810e287fef0c511383bc646313e08cfeafb1bfcd"
+        },
+        {
+          "path": "style.css",
+          "size": 49,
+          "sha256": "4c312ed3ff9b8e9c9fc122f17db9c1c98782c364598eca2d4c6480bd555f0628"
+        }
+      ]
+    },
+    {
+      "id": "X6",
+      "title": "Custom video player",
+      "sourceRepository": "https://github.com/mdn/learning-area",
+      "sourcePath": "javascript/apis/video-audio/finished",
+      "sourceCommit": "21973263ba859ff3477919087b488157f9d618a6",
+      "license": "CC0-1.0",
+      "licenseFile": "https://github.com/mdn/learning-area/blob/21973263ba859ff3477919087b488157f9d618a6/LICENSE",
+      "assetsNote": "Video is the Blender Foundation film Sintel (CC BY 3.0, credited in the page); icon font provenance not verified. Not redistributed in this repository.",
+      "files": [
+        {
+          "path": "custom-player.js",
+          "size": 2933,
+          "sha256": "dbf7cd7efaccb69767c2082031ae3699e67f5d071f31f64c476733810a29cb94"
+        },
+        {
+          "path": "fonts/heydings_controls-webfont.eot",
+          "size": 10726,
+          "sha256": "bf19e09796fa67705a85ee825842e12ed9485a2a095140f12a52921bf64c235d"
+        },
+        {
+          "path": "fonts/heydings_controls-webfont.ttf",
+          "size": 19032,
+          "sha256": "e1a713a19e8377c4c31cb995ca4d2bb375b454f182f4066a155e0e7dd003d36d"
+        },
+        {
+          "path": "fonts/heydings_controls-webfont.woff",
+          "size": 11912,
+          "sha256": "708e984225f441e5305170015c06bdf15fff4f0472681d0a109fbb17ce7881c0"
+        },
+        {
+          "path": "index.html",
+          "size": 1180,
+          "sha256": "9ce5d7730774ea5e29fcf84db61bcfbd21356fb5e2a18c98e242fa792b9c8c95"
+        },
+        {
+          "path": "style.css",
+          "size": 1953,
+          "sha256": "7e3515b98db82e113220cd501afa8e5529063d16cda3e32af006e570013460ed"
+        },
+        {
+          "path": "video/sintel-short.mp4",
+          "size": 22306323,
+          "sha256": "358447f332663e6f3794816e32b8072526fcba8bf8744dc7fb3387afb5b2fceb"
+        },
+        {
+          "path": "video/sintel-short.webm",
+          "size": 5282875,
+          "sha256": "49939e273b2b42a986d747d7cd3a4963d0f720c9fae411197b232f4371d4c5d6"
+        }
+      ]
+    }
+  ]
+}
