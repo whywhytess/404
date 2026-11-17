@@ -16,6 +16,7 @@ export const presentCourse = (c: Course, opts: { includeJoinCode: boolean }) => 
   code: c.code,
   title: c.title,
   endDate: c.end_date,
+  purgedAt: c.purged_at,
   ...(opts.includeJoinCode ? { joinCode: c.join_code } : {}),
 });
 

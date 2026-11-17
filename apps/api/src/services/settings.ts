@@ -19,6 +19,7 @@ export async function getSettings(db: Kysely<Database>): Promise<ResourceSetting
     maxFiles: r.max_files,
     maxTotalBytes: Number(r.max_total_bytes),
     maxCompressionRatio: r.max_compression_ratio,
+    retentionDays: r.retention_days,
   };
 }
 
@@ -34,6 +35,7 @@ export async function updateSettings(db: Kysely<Database>, s: ResourceSettings, 
       max_files: s.maxFiles,
       max_total_bytes: s.maxTotalBytes,
       max_compression_ratio: s.maxCompressionRatio,
+      retention_days: s.retentionDays,
       updated_at: sql`now()`,
       updated_by: userId,
     })

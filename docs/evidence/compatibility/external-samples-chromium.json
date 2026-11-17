@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-11-17T10:31:07.099Z",
+  "measuredAt": "2026-11-17T13:04:49.759Z",
   "browser": "chromium",
   "results": [
     {
@@ -11,11 +11,19 @@
       "uploadStatus": 201,
       "rejectionCodes": [],
       "rejections": [],
-      "warningCodes": ["EXTERNAL_STYLE"],
-      "warnings": ["EXTERNAL_STYLE index.html"],
+      "warningCodes": [
+        "EXTERNAL_STYLE"
+      ],
+      "warnings": [
+        "EXTERNAL_STYLE index.html"
+      ],
       "entry": "index.html",
-      "blockedDirectives": ["style-src-elem"],
-      "violations": ["style-src-elem https://fonts.googleapis.com/css?family=Cherry+Swash|Raleway"],
+      "blockedDirectives": [
+        "style-src-elem"
+      ],
+      "violations": [
+        "style-src-elem https://fonts.googleapis.com/css?family=Cherry+Swash|Raleway"
+      ],
       "pageErrors": [],
       "runsUnchanged": false
     },
@@ -45,10 +53,16 @@
       "uploadStatus": 201,
       "rejectionCodes": [],
       "rejections": [],
-      "warningCodes": ["EXTERNAL_STYLE"],
-      "warnings": ["EXTERNAL_STYLE index.html"],
+      "warningCodes": [
+        "EXTERNAL_STYLE"
+      ],
+      "warnings": [
+        "EXTERNAL_STYLE index.html"
+      ],
       "entry": "index.html",
-      "blockedDirectives": ["style-src-elem"],
+      "blockedDirectives": [
+        "style-src-elem"
+      ],
       "violations": [
         "style-src-elem https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Sonsie+One"
       ],
@@ -81,12 +95,18 @@
       "uploadStatus": 201,
       "rejectionCodes": [],
       "rejections": [],
-      "warningCodes": ["WORKER"],
-      "warnings": ["WORKER main.js"],
+      "warningCodes": [
+        "WORKER"
+      ],
+      "warnings": [
+        "WORKER main.js"
+      ],
       "entry": "index.html",
-      "blockedDirectives": ["worker-src"],
+      "blockedDirectives": [
+        "worker-src"
+      ],
       "violations": [
-        "worker-src http://c5in7eh1syxq.localhost:4100/_t/eyJ2IjoxLCJzIjoiYzVpbjdlaDFzeXhxIiwidSI6IjFhY2FkYjc0LWM1YTEtNDYyNC1iZTg5LWI4YmU1ZmUyMjk2ZCIsInIiOiJzdHVkZW50IiwiaWF0IjoxNzk0OTExNDY0LCJleHAiOjE3OTQ5MTUwNjR9.L4IKiVylTt3Q_3ivnLislgIoa1eRAHcp6sCXiwRPl9Q/generate.js"
+        "worker-src http://g8ji6n9hfv9w.localhost:4100/_t/eyJ2IjoxLCJzIjoiZzhqaTZuOWhmdjl3IiwidSI6IjFlNTUzNGY2LWJjOGYtNDgyZC05YjVjLTAwNTY1N2ZhYWQxOCIsInIiOiJzdHVkZW50IiwiaWF0IjoxNzk0OTIwNjg3LCJleHAiOjE3OTQ5MjQyODd9.Y1D7A57t8ULGJoGyi3dh2iLrKVH5gIxNxvtLQQgcVxk/generate.js"
       ],
       "pageErrors": [],
       "runsUnchanged": false
@@ -98,8 +118,12 @@
       "browser": "chromium",
       "accepted": false,
       "uploadStatus": 413,
-      "rejectionCodes": ["ARCHIVE_TOO_LARGE"],
-      "rejections": ["ARCHIVE_TOO_LARGE"],
+      "rejectionCodes": [
+        "ARCHIVE_TOO_LARGE"
+      ],
+      "rejections": [
+        "ARCHIVE_TOO_LARGE"
+      ],
       "warningCodes": [],
       "warnings": [],
       "runsUnchanged": false

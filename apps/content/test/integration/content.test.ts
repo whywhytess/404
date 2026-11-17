@@ -329,6 +329,7 @@ describe('ST-19 / FR-34 requests per subdomain per second', () => {
       maxFiles: 500,
       maxTotalBytes: 100 * 1024 * 1024,
       maxCompressionRatio: 100,
+      retentionDays: 183,
     });
     const t = Date.UTC(2027, 0, 2, 0, 0, 0, 100);
     const fromDb = createContentHandler({

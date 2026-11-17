@@ -99,6 +99,10 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 - ADR-014 (user decision): `blob:` allowed in `img-src` and `media-src` only; X1 images now work;
   `BLOB_URL` warning removed; new cross-browser test proves blob scripts/workers stay blocked.
 
+- [DONE] T-022 FR-37 retention: migration `0004_retention`; per-course transaction (retire
+  subdomains, queue folders, delete submissions/versions/attempts/student enrolments, audit),
+  then storage deletion with retry; every 6 h + admin "Run now"; retention days adjustable.
+
 ### Verification
 
 | Command | Result |
@@ -109,7 +113,7 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 | `pnpm lint` | PASS (0 problems) |
 | `pnpm typecheck` | PASS |
 | `pnpm format:check` | PASS |
-| `npx vitest run` | PASS — 14 files, 125 tests |
+| `npx vitest run` | PASS — 15 files, 130 tests |
 | `vitest --coverage` (security) | 97.1 % lines |
 | `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
 | `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → view site on its own `*.localhost` origin (JS runs, `document.cookie` empty) → review iframe → close |
@@ -131,5 +135,5 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 
 1. Deployment preparation (production images, compose, reverse proxy with host allow-list, TLS) —
    needs two registered domains + a VPS from the user to finish.
-2. T-022 FR-37 retention deletion (410, tombstones, retry, audit) with a simulated clock.
-3. Backup/restore drill and user/installation manuals.
+2. Backup/restore drill (database + object storage) on an isolated local copy.
+3. User manual and installation manual.

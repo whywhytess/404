@@ -6,6 +6,7 @@ import { createLogger } from './logger.js';
 import { S3ObjectStore } from '@webcove/storage';
 import { parseTokenKey } from '@webcove/security';
 import { sweepStorage } from './services/publish.js';
+import { runRetention } from './services/retention.js';
 
 const config = loadConfig();
 const logger = createLogger(config.NODE_ENV);
@@ -44,6 +45,18 @@ const sweepTimer = setInterval(() => {
     .catch((err) => logger.error({ err }, 'Storage sweep failed'));
 }, SWEEP_INTERVAL_MS);
 sweepTimer.unref();
+
+// FR-37: retention deletion, checked every 6 hours and once shortly after start-up.
+const RETENTION_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const retention = () =>
+  runRetention({ db: db.kysely, store, logger })
+    .then((r) => {
+      if (r.coursesPurged.length || r.foldersDeleted || r.foldersFailed)
+        logger.info(r, 'Retention run finished');
+    })
+    .catch((err) => logger.error({ err }, 'Retention run failed'));
+setTimeout(retention, 60_000).unref();
+setInterval(retention, RETENTION_INTERVAL_MS).unref();
 
 async function shutdown(signal: string) {
   logger.info(`${signal} received, shutting down`);

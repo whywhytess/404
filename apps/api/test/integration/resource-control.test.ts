@@ -23,6 +23,7 @@ const defaults = {
   storageQuotaBytes: 200 * MB,
   uploadsPerHour: 10,
   contentRequestsPerSecond: 50,
+  retentionDays: 183,
   ...DEFAULT_UPLOAD_LIMITS,
 };
 const setSettings = (patch: Partial<typeof defaults>) =>

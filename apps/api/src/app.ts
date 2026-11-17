@@ -92,7 +92,7 @@ export function createApp(deps: AppDeps) {
 
   const limits = deps.rateLimits ?? DEFAULT_RATE_LIMITS;
   api.use('/auth', authRoutes(db.kysely, createLoginLimiter(limits)));
-  api.use('/admin', requireAdmin, adminRoutes(db.kysely));
+  api.use('/admin', requireAdmin, adminRoutes(db.kysely, deps.store, deps.logger));
   api.use('/courses', requireAuth, courseRoutes(db.kysely, createJoinLimiter(limits)));
   api.use('/courses/:courseId/assignments', requireAuth, courseAssignmentRoutes(db.kysely));
   api.use('/assignments', requireAuth, assignmentRoutes(db.kysely));

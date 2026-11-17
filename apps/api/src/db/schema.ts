@@ -24,6 +24,7 @@ export interface CoursesTable {
   end_date: ColumnType<string | null, string | null | undefined>;
   created_by: string | null;
   created_at: Timestamp;
+  purged_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
 }
 
 export interface EnrollmentsTable {
@@ -112,6 +113,7 @@ export interface PlatformSettingsTable {
   max_files: ColumnType<number, number | undefined, number>;
   max_total_bytes: BigInt;
   max_compression_ratio: ColumnType<number, number | undefined, number>;
+  retention_days: ColumnType<number, number | undefined, number>;
   updated_at: Timestamp;
   updated_by: string | null;
 }
@@ -120,6 +122,14 @@ export interface UploadAttemptsTable {
   id: Generated<string>;
   assignment_id: string;
   student_id: string;
+  created_at: Timestamp;
+}
+
+export interface PendingDeletionsTable {
+  prefix: string;
+  reason: string;
+  attempts: ColumnType<number, number | undefined, number>;
+  last_error: string | null;
   created_at: Timestamp;
 }
 
@@ -134,6 +144,7 @@ export interface Database {
   retired_subdomains: RetiredSubdomainsTable;
   platform_settings: PlatformSettingsTable;
   upload_attempts: UploadAttemptsTable;
+  pending_deletions: PendingDeletionsTable;
 }
 
 export type User = Selectable<UsersTable>;

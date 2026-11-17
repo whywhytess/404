@@ -10,12 +10,15 @@ import { audit } from '../audit.js';
 import { Email, Name } from '../validation.js';
 import { getSettings, updateSettings } from '../services/settings.js';
 import { sql } from 'kysely';
+import type { Logger } from 'pino';
+import type { ObjectStore } from '@webcove/storage';
+import { runRetention } from '../services/retention.js';
 
 const CreateStaffBody = z.object({ name: Name, email: Email });
 const UpdateStaffBody = z.object({ status: z.enum(['active', 'disabled']) });
 
 /** FR-03: administrators create, disable and reset instructor and TA accounts. All routes are admin-only. */
-export function adminRoutes(db: Kysely<Database>) {
+export function adminRoutes(db: Kysely<Database>, store: ObjectStore, logger?: Logger) {
   const r = Router();
 
   r.get('/staff', async (_req, res) => {
@@ -137,6 +140,7 @@ export function adminRoutes(db: Kysely<Database>) {
       .min(10 * 1024)
       .max(2 * 1024 * MB),
     maxCompressionRatio: z.number().int().min(2).max(10_000),
+    retentionDays: z.number().int().min(1).max(3650),
   });
 
   r.get('/settings', async (_req, res) => {
@@ -182,6 +186,39 @@ export function adminRoutes(db: Kysely<Database>) {
     res.json({
       quotaBytes: storageQuotaBytes,
       users: rows.map((r) => ({ ...r, usedBytes: Number(r.usedBytes) })),
+    });
+  });
+
+  // FR-37: run the retention job now (it also runs automatically every 6 hours).
+  r.post('/retention/run', async (_req, res) => {
+    res.json({ result: await runRetention({ db, store, logger }) });
+  });
+
+  r.get('/retention', async (_req, res) => {
+    const { retentionDays } = await getSettings(db);
+    const pending = await db
+      .selectFrom('pending_deletions')
+      .select(['prefix', 'attempts', 'last_error as lastError', 'created_at as createdAt'])
+      .orderBy('created_at')
+      .limit(100)
+      .execute();
+    const courses = await db
+      .selectFrom('courses')
+      .select(['id', 'code', 'title', 'end_date as endDate', 'purged_at as purgedAt'])
+      .where('end_date', 'is not', null)
+      .orderBy('end_date')
+      .execute();
+    res.json({
+      retentionDays,
+      courses: courses.map((c) => ({
+        ...c,
+        deleteAfter: c.endDate
+          ? new Date(Date.parse(`${c.endDate}T00:00:00Z`) + (retentionDays + 1) * 86_400_000)
+              .toISOString()
+              .slice(0, 10)
+          : null,
+      })),
+      pendingDeletions: pending,
     });
   });
 

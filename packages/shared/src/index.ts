@@ -105,4 +105,6 @@ export interface ResourceSettings extends UploadLimits {
   storageQuotaBytes: number;
   uploadsPerHour: number;
   contentRequestsPerSecond: number;
+  /** FR-37: days after a course's end date before its submissions are deleted. */
+  retentionDays: number;
 }

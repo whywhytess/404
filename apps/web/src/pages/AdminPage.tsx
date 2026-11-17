@@ -12,6 +12,7 @@ export function AdminPage() {
       <StaffSection />
       <SettingsSection />
       <UsageSection />
+      <RetentionSection />
       <AuditSection />
     </>
   );
@@ -265,6 +266,7 @@ const SETTING_FIELDS: { key: keyof ResourceSettings; label: string; mb?: boolean
   { key: 'maxFiles', label: 'Maximum number of files' },
   { key: 'maxTotalBytes', label: 'Maximum unpacked size (MB)', mb: true },
   { key: 'maxCompressionRatio', label: 'Maximum compression ratio (x:1)' },
+  { key: 'retentionDays', label: 'Delete submissions this many days after course end' },
 ];
 
 /** FR-35: view and adjust quotas and limits. */
@@ -366,6 +368,111 @@ function UsageSection() {
               ))}
           </tbody>
         </table>
+      )}
+    </section>
+  );
+}
+
+interface RetentionStatus {
+  retentionDays: number;
+  courses: {
+    id: string;
+    code: string;
+    title: string;
+    endDate: string;
+    deleteAfter: string;
+    purgedAt: string | null;
+  }[];
+  pendingDeletions: { prefix: string; attempts: number; lastError: string | null }[];
+}
+
+/** FR-37: what will be deleted when, and failed storage deletions waiting for retry. */
+function RetentionSection() {
+  const { data, error, loading, reload } = useLoad(
+    () => api.get<RetentionStatus>('/api/admin/retention'),
+    [],
+  );
+  const [msg, setMsg] = useState('');
+  const [runError, setRunError] = useState('');
+
+  async function runNow() {
+    if (
+      !confirm(
+        'Run the retention job now? Submissions of courses past their retention period are deleted permanently.',
+      )
+    )
+      return;
+    setMsg('');
+    setRunError('');
+    try {
+      const res = await api.post<{
+        result: {
+          coursesPurged: { code: string }[];
+          foldersDeleted: number;
+          foldersFailed: number;
+        };
+      }>('/api/admin/retention/run');
+      const r = res.result;
+      setMsg(
+        `Done: ${r.coursesPurged.length} course(s) purged, ${r.foldersDeleted} folder(s) deleted, ${r.foldersFailed} failed (will retry).`,
+      );
+      await reload();
+    } catch (err) {
+      setRunError(errorMessage(err));
+    }
+  }
+
+  return (
+    <section className="card">
+      <h2>Data retention</h2>
+      {loading && <Loading />}
+      <Alert>{error || runError}</Alert>
+      <Alert kind="success">{msg}</Alert>
+      {data && (
+        <>
+          <p className="hint">
+            Submissions, versions and files of a course are deleted {data.retentionDays} days after
+            its end date. Deleted sites answer “410 Gone” and their addresses are never reused. The
+            job runs every 6 hours.
+          </p>
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Course</th>
+                <th scope="col">End date</th>
+                <th scope="col">Deleted after</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.courses.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    {c.code} {c.title}
+                  </td>
+                  <td>{c.endDate}</td>
+                  <td>{c.deleteAfter}</td>
+                  <td>
+                    {c.purgedAt ? (
+                      <Badge>Deleted {new Date(c.purgedAt).toLocaleDateString()}</Badge>
+                    ) : (
+                      'Kept'
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.pendingDeletions.length > 0 && (
+            <Alert>
+              {data.pendingDeletions.length} storage folder(s) could not be deleted yet and will be
+              retried. Last error: {data.pendingDeletions[0]!.lastError}
+            </Alert>
+          )}
+          <button type="button" className="danger" onClick={runNow}>
+            Run retention now
+          </button>
+        </>
       )}
     </section>
   );

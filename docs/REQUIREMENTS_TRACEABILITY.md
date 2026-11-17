@@ -51,8 +51,8 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | FR-33 Uploads per student per assignment per hour | S | DONE | `upload_attempts` table; checked before the body is received; 429 + `Retry-After` | `resource-control.test.ts` ST-19/FR-33 |
 | FR-34 Requests per subdomain per second | S | DONE (content server, in memory; Cloudflare edge limit at deployment) | `apps/content/src/rate-limit.ts` | `content.test.ts` ST-19/FR-34 |
 | FR-35 Admin views/adjusts quotas, sees storage usage | S | DONE | `GET/PUT /api/admin/settings`, `GET /api/admin/usage`; admin UI | `resource-control.test.ts` FR-35; `content.test.ts` (limit read from DB) |
-| FR-36 Course end date stops uploads/rollbacks | S | PARTIAL — end date stored, editable; joining blocked after end; upload check in Phase 2 | `courses.ts` `courseHasEnded` | unit + `courses.test.ts` |
-| FR-37 Retention deletion, 410, never reassigned | S | NOT STARTED | ADR-009 | — |
+| FR-36 Course end date stops uploads/rollbacks | S | DONE | `courseHasEnded`; checked in upload pre-check and inside the publish/rollback transaction | unit; `courses.test.ts`; `uploads.test.ts` FR-36 |
+| FR-37 Retention deletion, 410, never reassigned, audited | S | DONE | `services/retention.ts` (DB first, queued storage deletion with retry), scheduled every 6 h + admin trigger; admin UI | `retention.test.ts` (5 tests, simulated clock) |
 
 ## Non-functional requirements
 
@@ -69,4 +69,4 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | NFR-U1 Publish in ≤ 3 steps | NOT STARTED | Phase 2 UI |
 | NFR-U2 Messages name the file and the fix | DONE | `messages.ts`; test asserts every warning names its file |
 | NFR-M1 ≥ 70 % coverage of validator/token/header modules; CI | PARTIAL — validator 95 % lines, security (token + headers) 97 % lines; CI not yet run on GitHub (no remote) | `vitest --coverage` |
-| NFR-P1 Minimal personal data, retention deletion | PARTIAL — only name, e-mail, role, membership stored; deletion in Phase 5 | schema `0001_init.ts` |
+| NFR-P1 Minimal personal data, retention deletion | DONE — only name, e-mail, role, membership stored; course submissions and student memberships deleted after the retention period (backups may keep data up to 30 days, ADR-009) | `retention.test.ts` |

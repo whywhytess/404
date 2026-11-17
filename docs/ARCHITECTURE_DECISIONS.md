@@ -85,11 +85,25 @@ beyond the SRD it says so.
 - Root-absolute URLs (`/css/x.css`) escape the token prefix and are **not** served; the
   validator warns about them (FR-15). Files are never rewritten.
 
-## ADR-009 Retention and deletion — Proposed (Phase 5)
+## ADR-009 Retention and deletion — Accepted (implemented 2026-11-17)
 
-- FR-19: keep files of current + previous versions only. FR-37: after course end date +
-  retention period, delete files, versions and submissions; subdomains return 410 and are
-  never reassigned (a tombstone table keeps used subdomains).
+- FR-19: keep files of current + previous versions only (`files_deleted_at`, sweep).
+- FR-37 / NFR-P1: a course whose end date is more than `retention_days` (default 183, about one
+  semester; administrator-adjustable) in the past is purged by `services/retention.ts`:
+  1. **One database transaction per course**: retire every subdomain (`retired_subdomains`),
+     queue each version folder in `pending_deletions`, delete submissions (versions cascade),
+     upload attempts and **student** enrolments (personal data); keep the course shell, its
+     assignments and staff assignments; set `courses.purged_at`; write one audit entry with counts.
+  2. **Then storage**: delete queued folders; a failure stays queued with `attempts` and
+     `last_error` and is retried on the next run. The database side is already done, so nothing
+     can be served meanwhile (content server: retired subdomain → **410 Gone**).
+  3. Runs every 6 hours (and on demand by an administrator); idempotent; course row locked.
+- **Limits of the guarantee.** Database backups (NFR-R2: daily, kept 30 days) and object-storage
+  version history may still hold deleted data for up to 30 days after a purge; this is stated
+  rather than claiming immediate physical deletion everywhere. User accounts are not course data
+  and are not deleted by this job.
+- **Tests.** `apps/content/test/integration/retention.test.ts` (simulated clock: due / not due /
+  no end date, 410, idempotent audit, storage failure + retry, admin-only trigger).
 
 ## ADR-010 Minimal deployment — Proposed (Phase 7)
 
