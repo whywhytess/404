@@ -123,3 +123,18 @@ beyond the SRD it says so.
   session with an old version is destroyed on its next request.
 - Staff accounts get a one-time temporary password shown once to the administrator; until it
   is changed, every other endpoint returns `PASSWORD_CHANGE_REQUIRED`.
+
+## ADR-014 Allow `blob:` for images and media — Accepted (2026-11-17, user decision)
+
+- **Context.** The external-sample measurement (`docs/COMPATIBILITY_REPORT.md`) showed that a
+  common tutorial pattern — fetch an image from the site, then show it with
+  `URL.createObjectURL()` (MDN "Can store", X1) — was blocked by `img-src 'self' data:`.
+- **Decision.** `img-src 'self' data: blob:` and `media-src 'self' blob:`. Nothing else changes:
+  `script-src 'self'`, `worker-src 'none'`, `frame-src 'none'` and `connect-src 'self'` stay as
+  they are. Blob URLs can only be created by the page's own script from data it already holds,
+  so this adds no new way to load code or to send data out.
+- **Consequences.** X1's product images now display in all three engines; the `BLOB_URL`
+  upload warning was removed. SRD §3.9.3, Table 3.20 and Appendix D updated.
+- **Tests.** `security.test.ts` (exact header string; script/worker/frame/connect unchanged);
+  `browser-attacks.spec.ts` "ADR-014" (blob image loads; blob script and blob worker blocked,
+  in Chromium, Firefox and WebKit); ST-07 still passes.

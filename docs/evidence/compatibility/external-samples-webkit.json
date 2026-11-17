@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-11-17T10:02:02.835Z",
+  "measuredAt": "2026-11-17T10:31:43.021Z",
   "browser": "webkit",
   "results": [
     {
@@ -11,25 +11,11 @@
       "uploadStatus": 201,
       "rejectionCodes": [],
       "rejections": [],
-      "warningCodes": ["BLOB_URL", "EXTERNAL_STYLE"],
-      "warnings": ["BLOB_URL can-script.js", "EXTERNAL_STYLE index.html"],
+      "warningCodes": ["EXTERNAL_STYLE"],
+      "warnings": ["EXTERNAL_STYLE index.html"],
       "entry": "index.html",
-      "blockedDirectives": ["style-src-elem", "img-src"],
-      "violations": [
-        "style-src-elem https://fonts.googleapis.com/css?family=Cherry+Swash|Raleway",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob",
-        "img-src blob"
-      ],
+      "blockedDirectives": ["style-src-elem"],
+      "violations": ["style-src-elem https://fonts.googleapis.com/css?family=Cherry+Swash|Raleway"],
       "pageErrors": [],
       "runsUnchanged": false
     },
@@ -100,7 +86,7 @@
       "entry": "index.html",
       "blockedDirectives": ["worker-src"],
       "violations": [
-        "worker-src http://llgrk9ubryzn.localhost:4100/_t/eyJ2IjoxLCJzIjoibGxncms5dWJyeXpuIiwidSI6Ijk5YzY2NzQ3LTFmOTItNGUwMy04ZDRkLTg2MzcyZmNmNmFlMCIsInIiOiJzdHVkZW50IiwiaWF0IjoxNzk0OTA5NzIwLCJleHAiOjE3OTQ5MTMzMjB9.3-REaCahuijvh2zb4WkDVIMbYEuNpKyG16mYq8yo3Uk/generate.js"
+        "worker-src http://f5nrvx910ulg.localhost:4100/_t/eyJ2IjoxLCJzIjoiZjVucnZ4OTEwdWxnIiwidSI6IjUzNzM4ZDFmLTA2MzUtNDJlYS1hMzVlLTRjOTJjZjE4YTIwMyIsInIiOiJzdHVkZW50IiwiaWF0IjoxNzk0OTExNTAwLCJleHAiOjE3OTQ5MTUxMDB9.qfjPn36oIw2-R7-DZ9QVNmn9zNO2n00cg3mVon1d0a8/generate.js"
       ],
       "pageErrors": [],
       "runsUnchanged": false

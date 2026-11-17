@@ -346,6 +346,20 @@ test.describe('ST-11 top-level navigation', { tag: '@cross' }, () => {
   });
 });
 
+test(
+  'ADR-014 blob: works for images but not for scripts or workers',
+  { tag: '@cross' },
+  async ({ browser }) => {
+    const context = await browser.newContext();
+    const { page } = await openDirect(context, 0, 'stblob.html');
+    const r = await result(page);
+    expect(r.imageLoaded).toBe(true);
+    expect(r.scriptRan).toBe(false);
+    expect(directives(r)).toEqual(expect.arrayContaining(['script-src-elem', 'worker-src']));
+    await context.close();
+  },
+);
+
 test('ST-12 a service worker cannot be registered', async ({ browser }) => {
   const context = await browser.newContext();
   const { page } = await openDirect(context, 0, 'st12.html');

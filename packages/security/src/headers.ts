@@ -7,9 +7,11 @@ export function contentSecurityPolicy(platformOrigin: string): string {
     "default-src 'none'",
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data:",
+    // blob: lets a page show images/media it generated itself (e.g. fetched then
+    // URL.createObjectURL); scripts, workers and frames stay restricted (ADR-014).
+    "img-src 'self' data: blob:",
     "font-src 'self'",
-    "media-src 'self'",
+    "media-src 'self' blob:",
     "connect-src 'self'",
     "worker-src 'none'",
     "frame-src 'none'",

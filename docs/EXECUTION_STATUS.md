@@ -46,7 +46,7 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
   review list, administration (courses, staff accounts, audit log)
 - Fix: login/join rate-limit keys now use `ipKeyGenerator` (IPv6 /56 grouping); found by the E2E run
 - Fix: sign-out does a full page reload so the next user is not sent to the previous user's page
-- Commits: `7b7c170`, `1f81789`, and the Phase 1 front-end commit
+- Commits: `d844731`, `5ad8311`, and the Phase 1 front-end commit
 
 ### Phase 2 (same day)
 
@@ -94,7 +94,10 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
   ST-11, F01–F04, external samples). 58 browser tests pass across the three engines.
 - Validator: new `WORKER` and `BLOB_URL` warnings (found by the external-sample measurement).
 - `LOGIN_RATE_LIMIT` env (default 10) so automated runs can sign in often; production unchanged.
-- **Open decision for the user:** allow `blob:` in `img-src`/`media-src`? (Compatibility report §3.2)
+- Git history rewritten at the user's request to remove a local notes file from all commits;
+  force-pushed (new hashes; old → new mapping applied to this file).
+- ADR-014 (user decision): `blob:` allowed in `img-src` and `media-src` only; X1 images now work;
+  `BLOB_URL` warning removed; new cross-browser test proves blob scripts/workers stay blocked.
 
 ### Verification
 
@@ -111,7 +114,7 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 | `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
 | `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → view site on its own `*.localhost` origin (JS runs, `document.cookie` empty) → review iframe → close |
 | `pnpm test:security` (Chromium) | PASS — 14 tests (ST-01–ST-12, positive controls) |
-| `npx playwright test` (all projects) | PASS — 58 tests (Chromium all; Firefox/WebKit `@cross`) |
+| `npx playwright test` (all projects) | PASS — 61 tests (Chromium all; Firefox/WebKit `@cross`) |
 | GitHub Actions | PASS — check + e2e jobs (run 44057639696) |
 
 ### Risks / decisions

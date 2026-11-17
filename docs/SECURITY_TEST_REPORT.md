@@ -39,6 +39,12 @@ Summary: all 19 cases have automated results (ST-11 direct documented as a resid
 alongside its PASS in the review iframe); the ST-18 manual staging demonstration is outstanding. ST-02, ST-07 and ST-11 also pass in
 Firefox and WebKit.
 
+## Additional case
+
+| Case | Test | Result |
+| --- | --- | --- |
+| ADR-014: `blob:` allowed for images/media only | `browser-attacks.spec.ts` "ADR-014" (Chromium, Firefox, WebKit) | **PASS** — blob image loads; blob script blocked (`script-src-elem`); blob worker blocked (`worker-src`) |
+
 ## Notes
 
 - **ST-12 positive control.** Not included: the service-worker attempt is checked by its

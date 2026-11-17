@@ -110,8 +110,8 @@ describe('key parsing', () => {
 describe('FR-24 uniform header set (SRD Appendix D)', () => {
   it('matches Appendix D exactly', () => {
     expect(contentSecurityPolicy('https://platform.example.com/some/path')).toBe(
-      "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; " +
-        "font-src 'self'; media-src 'self'; connect-src 'self'; worker-src 'none'; frame-src 'none'; " +
+      "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; " +
+        "font-src 'self'; media-src 'self' blob:; connect-src 'self'; worker-src 'none'; frame-src 'none'; " +
         "object-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors https://platform.example.com; " +
         'sandbox allow-scripts allow-forms allow-same-origin allow-modals',
     );
@@ -129,5 +129,11 @@ describe('FR-24 uniform header set (SRD Appendix D)', () => {
     expect(h['Content-Security-Policy']).not.toMatch(
       /allow-popups|allow-top-navigation|allow-downloads/,
     );
+    // ADR-014: blob: is allowed for images and media only — never for scripts, workers or frames.
+    const csp = h['Content-Security-Policy']!;
+    expect(csp).toContain("script-src 'self';");
+    expect(csp).toContain("worker-src 'none';");
+    expect(csp).toContain("frame-src 'none';");
+    expect(csp).toContain("connect-src 'self';");
   });
 });

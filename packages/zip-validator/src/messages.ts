@@ -39,7 +39,6 @@ export type WarningCode =
   | 'JAVASCRIPT_URL'
   | 'EVAL'
   | 'WORKER'
-  | 'BLOB_URL'
   | 'ROOT_ABSOLUTE_PATH'
   | 'CASE_MISMATCH'
   | 'MISSING_FILE';
@@ -132,8 +131,6 @@ export function warningMessage(code: WarningCode, file: string, detail: string):
       return `${f} uses ${detail}, which the security policy blocks. Rewrite the code without eval() or new Function().`;
     case 'WORKER':
       return `${f} uses ${detail}. Web workers and service workers are blocked by the security policy (worker-src 'none'), so this code will not run. Do the work in your main script instead.`;
-    case 'BLOB_URL':
-      return `${f} uses URL.createObjectURL(). Images, audio and video loaded from "blob:" addresses are blocked by the security policy. Use the file's relative path directly, e.g. img.src = "images/photo.jpg".`;
     case 'ROOT_ABSOLUTE_PATH':
       return `${f} links to "${detail}", which starts with "/". Such links do not work on Web Cove. Use a relative path instead, e.g. "${detail.replace(/^\/+/, '')}".`;
     case 'CASE_MISMATCH':
