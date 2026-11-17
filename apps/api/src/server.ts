@@ -2,10 +2,20 @@ import { loadConfig } from './config.js';
 import { createDb } from './db/index.js';
 import { createApp } from './app.js';
 import { createLogger } from './logger.js';
+import { S3ObjectStore } from '@webcove/storage';
+import { sweepStorage } from './services/publish.js';
 
 const config = loadConfig();
 const logger = createLogger(config.NODE_ENV);
 const db = createDb(config.DATABASE_URL);
+const store = new S3ObjectStore({
+  endpoint: config.S3_ENDPOINT,
+  region: config.S3_REGION,
+  bucket: config.S3_BUCKET,
+  accessKeyId: config.S3_ACCESS_KEY,
+  secretAccessKey: config.S3_SECRET_KEY,
+});
+await store.ensureBucket();
 
 const app = createApp({
   db,
@@ -14,11 +24,21 @@ const app = createApp({
   sessionSecret: config.SESSION_SECRET,
   secureCookie: config.NODE_ENV === 'production',
   trustProxy: config.TRUST_PROXY,
+  store,
 });
 
 const server = app.listen(config.API_PORT, () => {
   logger.info(`Web Cove API listening on port ${config.API_PORT}`);
 });
+
+// Periodic storage clean-up (ADR-004, FR-19): orphaned and retired version folders.
+const SWEEP_INTERVAL_MS = 30 * 60 * 1000;
+const sweepTimer = setInterval(() => {
+  sweepStorage({ db: db.kysely, store })
+    .then((r) => logger.info(r, 'Storage sweep finished'))
+    .catch((err) => logger.error({ err }, 'Storage sweep failed'));
+}, SWEEP_INTERVAL_MS);
+sweepTimer.unref();
 
 async function shutdown(signal: string) {
   logger.info(`${signal} received, shutting down`);

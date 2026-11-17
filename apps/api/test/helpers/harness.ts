@@ -9,7 +9,8 @@ import { createApp } from '../../src/app.js';
 import { createLogger } from '../../src/logger.js';
 import { hashPassword } from '../../src/auth/password.js';
 import type { RateLimitSettings } from '../../src/middleware/rate-limit.js';
-import type { AccountType } from '@webcove/shared';
+import type { AccountType, UploadLimits } from '@webcove/shared';
+import { S3ObjectStore, type ObjectStore } from '@webcove/storage';
 
 export const ORIGIN = 'http://platform.test';
 
@@ -32,12 +33,28 @@ function testDatabaseUrl(): string {
 export interface Harness {
   db: Db;
   app: Express;
+  store: ObjectStore;
   close(): Promise<void>;
 }
 
 /** Fresh schema + app for one test file. Never point TEST_DATABASE_URL at a real database. */
+export function testStore(): S3ObjectStore {
+  return new S3ObjectStore({
+    endpoint: process.env.S3_ENDPOINT ?? 'http://127.0.0.1:59000',
+    region: 'us-east-1',
+    bucket: 'webcove-test',
+    accessKeyId: process.env.S3_ACCESS_KEY ?? 'webcove',
+    secretAccessKey: process.env.S3_SECRET_KEY ?? 'webcove_dev_only',
+  });
+}
+
 export async function setupHarness(
-  opts: { rateLimits?: Partial<RateLimitSettings> } = {},
+  opts: {
+    rateLimits?: Partial<RateLimitSettings>;
+    store?: ObjectStore;
+    beforeCommit?: () => Promise<void>;
+    uploadLimits?: UploadLimits;
+  } = {},
 ): Promise<Harness> {
   const url = testDatabaseUrl();
   if (!/test/.test(new URL(url).pathname))
@@ -46,7 +63,13 @@ export async function setupHarness(
   await sql`drop schema if exists public cascade`.execute(db.kysely);
   await sql`create schema public`.execute(db.kysely);
   await migrateToLatest(db.kysely);
+  const real = testStore();
+  await real.ensureBucket();
+  const store = opts.store ?? real;
   const app = createApp({
+    store,
+    beforeCommit: opts.beforeCommit,
+    uploadLimits: opts.uploadLimits,
     db,
     logger: createLogger('test'),
     platformOrigin: ORIGIN,
@@ -54,7 +77,7 @@ export async function setupHarness(
     secureCookie: false,
     rateLimits: { loginMax: 1000, joinMax: 1000, windowMs: 60_000, ...opts.rateLimits },
   });
-  return { db, app, close: () => db.close() };
+  return { db, app, store, close: () => db.close() };
 }
 
 /** A cookie-keeping client that sends the platform Origin on every request (as a browser would). */
@@ -115,4 +138,39 @@ export async function createCourseWithMembers(h: Harness, admin: Client) {
   await admin.post(`/api/courses/${course.id}/staff`, { userId: ta.id, role: 'ta' });
   await student.c.post('/api/courses/join', { joinCode: course.joinCode });
   return { course, instructor, ta, student };
+}
+
+/** Upload a ZIP buffer as the signed-in student. */
+export function uploadZip(c: Client, assignmentId: string, zip: Buffer, filename = 'site.zip') {
+  return c.agent
+    .post(`/api/assignments/${assignmentId}/submission`)
+    .set('Origin', ORIGIN)
+    .attach('archive', zip, filename);
+}
+
+/** ObjectStore wrapper that fails on demand (fault injection, NFR-R1). */
+export class FaultyStore implements ObjectStore {
+  failPutsAfter = Infinity;
+  private puts = 0;
+  constructor(private inner: ObjectStore) {}
+  reset() {
+    this.puts = 0;
+    this.failPutsAfter = Infinity;
+  }
+  async put(...args: Parameters<ObjectStore['put']>) {
+    if (++this.puts > this.failPutsAfter) throw new Error('injected storage failure');
+    return this.inner.put(...args);
+  }
+  get(key: string) {
+    return this.inner.get(key);
+  }
+  list(prefix: string) {
+    return this.inner.list(prefix);
+  }
+  listFolders(prefix: string) {
+    return this.inner.listFolders(prefix);
+  }
+  deletePrefix(prefix: string) {
+    return this.inner.deletePrefix(prefix);
+  }
 }

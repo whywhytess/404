@@ -6,14 +6,17 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['apps/*/test/unit/**/*.test.ts', 'packages/*/test/**/*.test.ts'],
+          include: ['apps/*/test/unit/**/*.test.ts', 'packages/*/test/*.test.ts'],
           environment: 'node',
         },
       },
       {
         test: {
           name: 'integration',
-          include: ['apps/*/test/integration/**/*.test.ts'],
+          include: [
+            'apps/*/test/integration/**/*.test.ts',
+            'packages/*/test/integration/**/*.test.ts',
+          ],
           environment: 'node',
           // Integration tests share one test database, so run files one at a time.
           fileParallelism: false,

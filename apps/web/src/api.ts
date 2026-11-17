@@ -82,3 +82,79 @@ export function fieldErrors(err: unknown): Record<string, string> {
 
 export const errorMessage = (err: unknown) =>
   err instanceof Error ? err.message : 'Something went wrong';
+
+export interface Issue {
+  code: string;
+  file?: string;
+  message: string;
+}
+
+export interface Version {
+  id: string;
+  number: number;
+  fileCount: number;
+  totalBytes: number;
+  warningCount: number;
+  warnings: Issue[];
+  filesAvailable: boolean;
+  createdAt: string;
+}
+
+export interface Submission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  subdomain: string;
+  currentVersionId: string | null;
+  previousVersionId: string | null;
+  takenDown: boolean;
+  takenDownReason: string | null;
+  updatedAt: string;
+}
+
+/**
+ * Upload a ZIP with progress reporting (XMLHttpRequest, because fetch cannot report
+ * upload progress). Resolves with the JSON body or rejects with ApiError.
+ */
+export function uploadArchive<T>(
+  url: string,
+  file: File,
+  onProgress: (fraction: number) => void,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.withCredentials = true;
+    xhr.responseType = 'json';
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(e.loaded / e.total);
+    };
+    xhr.onerror = () =>
+      reject(new ApiError(0, 'NETWORK', 'The upload failed. Check your connection and try again.'));
+    xhr.onload = () => {
+      const body = xhr.response as ({ error?: ApiErrorBody['error'] } & T) | null;
+      if (xhr.status >= 200 && xhr.status < 300) resolve(body as T);
+      else {
+        const err = body?.error;
+        reject(
+          new ApiError(
+            xhr.status,
+            err?.code ?? 'INTERNAL',
+            err?.message ?? 'Upload failed',
+            err?.details,
+          ),
+        );
+      }
+    };
+    const form = new FormData();
+    form.append('archive', file);
+    xhr.send(form);
+  });
+}
+
+export const formatBytes = (n: number) =>
+  n < 1024
+    ? `${n} B`
+    : n < 1024 * 1024
+      ? `${(n / 1024).toFixed(1)} KB`
+      : `${(n / 1024 / 1024).toFixed(1)} MB`;

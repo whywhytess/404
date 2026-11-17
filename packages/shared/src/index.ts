@@ -30,6 +30,10 @@ export const ERROR_CODES = [
   'ASSIGNMENT_CLOSED',
   'COURSE_ENDED',
   'RATE_LIMITED',
+  'UPLOAD_REJECTED',
+  'ARCHIVE_TOO_LARGE',
+  'NO_PREVIOUS_VERSION',
+  'STORAGE_UNAVAILABLE',
   'INTERNAL',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];

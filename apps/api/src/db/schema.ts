@@ -56,12 +56,59 @@ export interface AuditLogTable {
   created_at: Timestamp;
 }
 
+export interface SubmissionsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  student_id: string;
+  subdomain: string;
+  current_version_id: string | null;
+  previous_version_id: string | null;
+  taken_down_at: Date | null;
+  taken_down_reason: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export interface ManifestEntry {
+  path: string;
+  size: number;
+  sha256: string;
+}
+
+export interface StoredWarning {
+  code: string;
+  file?: string;
+  message: string;
+}
+
+export interface VersionsTable {
+  id: string;
+  submission_id: string;
+  number: number;
+  file_count: number;
+  /** bigint is returned as a string by node-postgres. */
+  total_bytes: ColumnType<string, number, number>;
+  warnings: ColumnType<StoredWarning[], string, string>;
+  manifest: ColumnType<ManifestEntry[], string, string>;
+  uploaded_by: string | null;
+  files_deleted_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  created_at: Timestamp;
+}
+
+export interface RetiredSubdomainsTable {
+  subdomain: string;
+  retired_at: Timestamp;
+}
+
 export interface Database {
   users: UsersTable;
   courses: CoursesTable;
   enrollments: EnrollmentsTable;
   assignments: AssignmentsTable;
   audit_log: AuditLogTable;
+  submissions: SubmissionsTable;
+  versions: VersionsTable;
+  retired_subdomains: RetiredSubdomainsTable;
 }
 
 export type User = Selectable<UsersTable>;
@@ -69,3 +116,5 @@ export type NewUser = Insertable<UsersTable>;
 export type UserUpdate = Updateable<UsersTable>;
 export type Course = Selectable<CoursesTable>;
 export type Assignment = Selectable<AssignmentsTable>;
+export type Submission = Selectable<SubmissionsTable>;
+export type Version = Selectable<VersionsTable>;

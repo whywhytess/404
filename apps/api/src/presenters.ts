@@ -29,3 +29,26 @@ export const presentAssignment = (a: Assignment) => ({
   createdAt: a.created_at,
   updatedAt: a.updated_at,
 });
+
+export const presentVersion = (v: import('./db/schema.js').Version) => ({
+  id: v.id,
+  number: v.number,
+  fileCount: v.file_count,
+  totalBytes: Number(v.total_bytes),
+  warningCount: v.warnings.length,
+  warnings: v.warnings,
+  filesAvailable: v.files_deleted_at === null,
+  createdAt: v.created_at,
+});
+
+export const presentSubmission = (s: import('./db/schema.js').Submission) => ({
+  id: s.id,
+  assignmentId: s.assignment_id,
+  studentId: s.student_id,
+  subdomain: s.subdomain,
+  currentVersionId: s.current_version_id,
+  previousVersionId: s.previous_version_id,
+  takenDown: s.taken_down_at !== null,
+  takenDownReason: s.taken_down_reason,
+  updatedAt: s.updated_at,
+});

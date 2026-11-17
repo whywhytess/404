@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 import { api, errorMessage, fieldErrors, type Assignment, type Role } from '../api';
 import { Alert, Badge, Field, Loading, useLoad } from '../components/ui';
+import { SubmissionPanel } from '../components/SubmissionPanel';
 
 /** Submission rules (SRD 3.9.3), shown on every assignment page (FR-26). */
 export function SubmissionRules() {
@@ -90,18 +91,7 @@ export function AssignmentPage() {
         </section>
       )}
 
-      {role === 'student' && (
-        <section className="card">
-          <h2>Your submission</h2>
-          {a.status === 'closed' ? (
-            <Alert kind="info">
-              This assignment is closed. Uploads and rollbacks are not accepted.
-            </Alert>
-          ) : (
-            <p className="hint">ZIP upload will be available in the next increment.</p>
-          )}
-        </section>
-      )}
+      {role === 'student' && <SubmissionPanel assignment={a} />}
       <SubmissionRules />
     </>
   );

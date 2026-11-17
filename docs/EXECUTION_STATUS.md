@@ -5,9 +5,9 @@ listed command was run and passed; `[PARTIAL]`; `[BLOCKED]`; `[NOT STARTED]`.
 
 ## Current phase
 
-Phase 1 (Trusted workflow skeleton): **Gate P1 passed** — API + web front end, verified by
-integration tests and a Playwright end-to-end run of the three-role workflow.
-Next: Phase 2 (ZIP validator, versions, atomic publish).
+Phase 2 (Safe upload & immutable versions): **Gate P2 passed** — malicious ZIPs rejected
+before anything is written; storage/DB fault injection never changes the published version.
+Next: Phase 3 (token library, content server on separate origins, security headers).
 
 ## Environment notes
 
@@ -47,6 +47,17 @@ Next: Phase 2 (ZIP validator, versions, atomic publish).
 - Fix: sign-out does a full page reload so the next user is not sent to the previous user's page
 - Commits: `7b7c170`, `1f81789`, and the Phase 1 front-end commit
 
+### Phase 2 (same day)
+
+- [DONE] T-009 `packages/zip-validator` (central-directory checks, bounded extraction, warnings)
+- [DONE] T-010 migration `0002_submissions` (submissions, versions, retired_subdomains)
+- [DONE] T-011 `packages/storage` (S3 API) + upload endpoint + atomic publish + sweep
+- [DONE] T-012 uploads/rollbacks refused when closed or course ended; close-during-publish race test
+- [DONE] T-013 version history, rollback (undoable), current + previous files only
+- UI: student upload panel (progress, errors, warnings, history, rollback); review columns
+- Found and fixed: SeaweedFS keeps empty folder names after deletion (tests now count objects);
+  TypeScript 6 needs `"types": ["node"]` in packages
+
 ### Verification
 
 | Command | Result |
@@ -57,8 +68,9 @@ Next: Phase 2 (ZIP validator, versions, atomic publish).
 | `pnpm lint` | PASS (0 problems) |
 | `pnpm typecheck` | PASS |
 | `pnpm format:check` | PASS |
-| `npx vitest run` | PASS — 5 files, 39 tests (unit 6, integration 33) |
-| `pnpm test:e2e` (Playwright, Chromium) | PASS — 4 tests: admin → instructor → student → close |
+| `npx vitest run` | PASS — 9 files, 79 tests |
+| `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
+| `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → close |
 | GitHub Actions | NOT RUN — no remote configured |
 
 ### Risks / decisions
@@ -73,6 +85,6 @@ Next: Phase 2 (ZIP validator, versions, atomic publish).
 
 ### Next 3 tasks
 
-1. T-009 ZIP validator package with malicious fixtures (ST-14, ST-15).
-2. T-010/T-011 submissions + versions schema, S3 adapter, atomic publish with fault injection.
-3. T-012 upload refused when closed / course ended (row-lock race test), then the upload UI.
+1. T-014 token library (HMAC-SHA-256, role-based expiry) with unit tests (ST-17).
+2. T-015 content server: host → submission → token → file, Appendix D headers, MIME allow-list.
+3. T-016 local two-site routing and "View my site" / review iframe.

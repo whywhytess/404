@@ -19,6 +19,9 @@ import { adminRoutes } from './routes/admin.js';
 import { courseRoutes } from './routes/courses.js';
 import { assignmentRoutes, courseAssignmentRoutes } from './routes/assignments.js';
 import { redactUrl } from './logger.js';
+import { ownSubmissionRoutes, submissionRoutes } from './routes/submissions.js';
+import type { ObjectStore } from '@webcove/storage';
+import type { UploadLimits } from '@webcove/shared';
 
 export interface AppDeps {
   db: Db;
@@ -28,6 +31,10 @@ export interface AppDeps {
   secureCookie: boolean;
   trustProxy?: number;
   rateLimits?: RateLimitSettings;
+  store: ObjectStore;
+  uploadLimits?: UploadLimits;
+  /** Test hook for fault injection inside the publish transaction. */
+  beforeCommit?: () => Promise<void>;
 }
 
 export function createApp(deps: AppDeps) {
@@ -87,6 +94,16 @@ export function createApp(deps: AppDeps) {
   api.use('/courses', requireAuth, courseRoutes(db.kysely, createJoinLimiter(limits)));
   api.use('/courses/:courseId/assignments', requireAuth, courseAssignmentRoutes(db.kysely));
   api.use('/assignments', requireAuth, assignmentRoutes(db.kysely));
+
+  const subDeps = {
+    db: db.kysely,
+    store: deps.store,
+    logger: deps.logger,
+    limits: deps.uploadLimits,
+    beforeCommit: deps.beforeCommit,
+  };
+  api.use('/assignments/:id/submission', requireAuth, ownSubmissionRoutes(subDeps));
+  api.use('/submissions', requireAuth, submissionRoutes(subDeps));
 
   app.use('/api', api);
   app.use(notFoundHandler);

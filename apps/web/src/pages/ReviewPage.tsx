@@ -4,7 +4,13 @@ import { Alert, Loading, useLoad } from '../components/ui';
 
 interface ReviewRow {
   student: { id: string; name: string; email: string };
-  submission: null;
+  submission: {
+    id: string;
+    currentVersion: number | null;
+    lastUploadAt: string | null;
+    warningCount: number;
+    takenDown: boolean;
+  } | null;
 }
 
 /** FR-27 skeleton: the sandboxed preview (FR-28) arrives with the content server (Phase 3). */
@@ -32,6 +38,8 @@ export function ReviewPage() {
             <th scope="col">Student</th>
             <th scope="col">E-mail</th>
             <th scope="col">Current version</th>
+            <th scope="col">Last upload</th>
+            <th scope="col">Warnings</th>
           </tr>
         </thead>
         <tbody>
@@ -39,12 +47,21 @@ export function ReviewPage() {
             <tr key={r.student.id}>
               <td>{r.student.name}</td>
               <td>{r.student.email}</td>
-              <td>{r.submission ? '—' : 'Not submitted'}</td>
+              <td>
+                {r.submission?.currentVersion ? `v${r.submission.currentVersion}` : 'Not submitted'}
+                {r.submission?.takenDown && ' (taken down)'}
+              </td>
+              <td>
+                {r.submission?.lastUploadAt
+                  ? new Date(r.submission.lastUploadAt).toLocaleString()
+                  : '—'}
+              </td>
+              <td>{r.submission ? r.submission.warningCount : '—'}</td>
             </tr>
           ))}
           {data.submissions.length === 0 && (
             <tr>
-              <td colSpan={3}>No students have joined this course yet.</td>
+              <td colSpan={5}>No students have joined this course yet.</td>
             </tr>
           )}
         </tbody>

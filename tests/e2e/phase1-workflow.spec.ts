@@ -1,5 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
+import path from 'node:path';
 import { E2E_ADMIN } from './global-setup.js';
+
+const ARCHIVES = path.resolve(import.meta.dirname, '../fixtures/archives');
 
 /**
  * Phase 1 gate: admin creates a staff account and a course and assigns the instructor;
@@ -104,13 +107,46 @@ test('student registers, joins with the code and sees the assignment and rules',
   await signOut(page);
 });
 
+test('student uploads: a valid ZIP is published, an unsafe ZIP is rejected, rollback works', async ({
+  page,
+}) => {
+  await signIn(page, STUDENT.email, STUDENT.password);
+  await page.getByRole('link', { name: /CAT201/ }).click();
+  await page.getByRole('link', { name: 'Assignment 1: Portfolio' }).click();
+  const upload = async (file: string) => {
+    await page.getByLabel('ZIP file of your website').setInputFiles(path.join(ARCHIVES, file));
+    await page.getByRole('button', { name: 'Upload and publish' }).click();
+  };
+
+  await upload('valid-site.zip');
+  await expect(page.getByText('Published as version 1.')).toBeVisible();
+
+  // ST-14 through the UI: rejected, with the file named, and the published version unchanged.
+  await upload('zipslip-parent.zip');
+  const rejection = page.getByRole('alert').filter({ hasText: 'Not published.' });
+  await expect(rejection).toContainText('../evil.html');
+  await expect(rejection).toContainText('Your published version has not changed.');
+  await expect(page.getByText('Published: version 1')).toBeVisible();
+
+  await upload('warnings-site.zip');
+  const ok = page.getByRole('status').filter({ hasText: 'Published as version 2.' });
+  await expect(ok).toContainText('warning(s)');
+  await expect(ok).toContainText('inline');
+
+  page.once('dialog', (d) => d.accept());
+  await page.getByRole('button', { name: 'Go back to version 1' }).click();
+  await expect(page.getByText('Published: version 1')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Go back to version 2' })).toBeVisible();
+  await signOut(page);
+});
+
 test('instructor closes the assignment; the student sees it as closed', async ({ page }) => {
   await signIn(page, INSTRUCTOR.email, INSTRUCTOR.password);
   await page.getByRole('link', { name: /CAT201/ }).click();
   await page.getByRole('link', { name: 'Assignment 1: Portfolio' }).click();
   await page.getByRole('link', { name: 'Review submissions →' }).click();
   await expect(page.getByRole('cell', { name: STUDENT.name })).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Not submitted' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'v1', exact: true })).toBeVisible();
   await page.goBack();
 
   page.once('dialog', (d) => d.accept());

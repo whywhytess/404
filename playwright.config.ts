@@ -26,6 +26,10 @@ export default defineConfig({
         PLATFORM_ORIGIN: PLATFORM_URL,
         DATABASE_URL: E2E_DATABASE_URL,
         SESSION_SECRET: 'e2e-session-secret-that-is-long-enough-0123456789',
+        S3_ENDPOINT: process.env.S3_ENDPOINT ?? 'http://127.0.0.1:59000',
+        S3_BUCKET: 'webcove-e2e',
+        S3_ACCESS_KEY: process.env.S3_ACCESS_KEY ?? 'webcove',
+        S3_SECRET_KEY: process.env.S3_SECRET_KEY ?? 'webcove_dev_only',
       },
     },
     {

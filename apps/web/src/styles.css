@@ -243,3 +243,13 @@ button.secondary {
   overflow: hidden;
   clip: rect(0 0 0 0);
 }
+.issues {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+}
+.issues li {
+  margin: 0.25rem 0;
+}
+.issues code {
+  font-weight: 600;
+}

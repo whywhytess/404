@@ -1,10 +1,12 @@
 import type { Kysely } from 'kysely';
 import { Migrator, type Migration, type MigrationProvider } from 'kysely/migration';
 import * as m0001 from './migrations/0001_init.js';
+import * as m0002 from './migrations/0002_submissions.js';
 
 /** Migrations are registered statically so that they work identically under tsx, tests and builds. */
 const migrations: Record<string, Migration> = {
   '0001_init': m0001,
+  '0002_submissions': m0002,
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

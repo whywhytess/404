@@ -119,17 +119,44 @@ export function assignmentRoutes(db: Kysely<Database>) {
   // FR-27 (skeleton): list every student of the course; submissions are added in Phase 2.
   r.get('/:id/review', async (req, res) => {
     const { assignment } = await authoriseAssignment(db, req.user!, req.params.id, STAFF);
-    const students = await db
+    const rows = await db
       .selectFrom('enrollments')
       .innerJoin('users', 'users.id', 'enrollments.user_id')
-      .select(['users.id', 'users.name', 'users.email'])
+      .leftJoin('submissions', (j) =>
+        j
+          .onRef('submissions.student_id', '=', 'users.id')
+          .on('submissions.assignment_id', '=', assignment.id),
+      )
+      .leftJoin('versions', 'versions.id', 'submissions.current_version_id')
+      .select([
+        'users.id',
+        'users.name',
+        'users.email',
+        'submissions.id as submissionId',
+        'submissions.taken_down_at as takenDownAt',
+        'versions.number as versionNumber',
+        'versions.created_at as versionCreatedAt',
+        'versions.warnings as versionWarnings',
+      ])
       .where('enrollments.course_id', '=', assignment.course_id)
       .where('enrollments.role', '=', 'student')
       .orderBy('users.name')
       .execute();
+    // FR-27: student name, current version, last upload time and warning count.
     res.json({
       assignment: presentAssignment(assignment),
-      submissions: students.map((s) => ({ student: s, submission: null })),
+      submissions: rows.map((r) => ({
+        student: { id: r.id, name: r.name, email: r.email },
+        submission: r.submissionId
+          ? {
+              id: r.submissionId,
+              currentVersion: r.versionNumber,
+              lastUploadAt: r.versionCreatedAt,
+              warningCount: r.versionWarnings?.length ?? 0,
+              takenDown: r.takenDownAt !== null,
+            }
+          : null,
+      })),
     });
   });
 
