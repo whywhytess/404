@@ -7,12 +7,13 @@ import type { Kysely } from 'kysely';
 import type { Logger } from 'pino';
 import { DEFAULT_UPLOAD_LIMITS, type UploadLimits } from '@webcove/shared';
 import type { ObjectStore } from '@webcove/storage';
-import type { Database } from '../db/schema.js';
+import type { Database, Submission } from '../db/schema.js';
 import { AppError, forbidden, notFound } from '../errors.js';
 import { assertUuid, authoriseAssignment, getCourseRole } from '../policy.js';
 import { presentSubmission, presentVersion } from '../presenters.js';
 import { courseHasEnded } from './courses.js';
 import { publishUpload, rollbackSubmission } from '../services/publish.js';
+import { signToken, type ViewerRole } from '@webcove/security';
 
 export interface SubmissionDeps {
   db: Kysely<Database>;
@@ -21,6 +22,8 @@ export interface SubmissionDeps {
   limits?: UploadLimits;
   /** Test hook: runs inside the publish transaction just before commit. */
   beforeCommit?: () => Promise<void>;
+  tokenKey: Buffer;
+  contentUrlPattern: string;
 }
 
 /** :id from the parent router (mergeParams). */
@@ -148,7 +151,11 @@ export function submissionRoutes(deps: SubmissionDeps) {
   const { db } = deps;
   const r = Router();
 
-  async function loadForUser(id: string, userId: string, accountType: string) {
+  async function loadForUser(
+    id: string,
+    userId: string,
+    accountType: string,
+  ): Promise<{ sub: Submission; isOwner: boolean; viewerRole: ViewerRole }> {
     assertUuid(id, 'Submission');
     const sub = await db
       .selectFrom('submissions')
@@ -156,15 +163,15 @@ export function submissionRoutes(deps: SubmissionDeps) {
       .where('id', '=', id)
       .executeTakeFirst();
     if (!sub) throw notFound('Submission');
-    if (sub.student_id === userId) return { sub, isOwner: true };
-    if (accountType === 'admin') return { sub, isOwner: false };
+    if (sub.student_id === userId) return { sub, isOwner: true, viewerRole: 'student' };
+    if (accountType === 'admin') return { sub, isOwner: false, viewerRole: 'admin' };
     const assignment = await db
       .selectFrom('assignments')
       .select('course_id')
       .where('id', '=', sub.assignment_id)
       .executeTakeFirstOrThrow();
     const role = await getCourseRole(db, assignment.course_id, userId);
-    if (role === 'instructor' || role === 'ta') return { sub, isOwner: false };
+    if (role === 'instructor' || role === 'ta') return { sub, isOwner: false, viewerRole: role };
     // Classmates and outsiders cannot tell whether the submission exists.
     throw notFound('Submission');
   }
@@ -172,6 +179,33 @@ export function submissionRoutes(deps: SubmissionDeps) {
   r.get('/:id/versions', async (req, res) => {
     const { sub } = await loadForUser(String(req.params.id), req.user!.id, req.user!.account_type);
     res.json({ submission: presentSubmission(sub), versions: await loadVersions(db, sub.id) });
+  });
+
+  /**
+   * FR-23: issue a short-lived signed access link. Only the owner and the course's
+   * instructors/TAs (or an administrator) can obtain one; a classmate cannot (ST-16).
+   */
+  r.post('/:id/view-token', async (req, res) => {
+    const { sub, viewerRole } = await loadForUser(
+      String(req.params.id),
+      req.user!.id,
+      req.user!.account_type,
+    );
+    if (!sub.current_version_id) throw notFound('Published version');
+    const { token, expiresAt } = signToken(deps.tokenKey, {
+      subdomain: sub.subdomain,
+      userId: req.user!.id,
+      role: viewerRole,
+    });
+    const origin = deps.contentUrlPattern.replace('{sub}', sub.subdomain).replace(/\/+$/, '');
+    // The token is a bearer credential: it is returned to this user only and never logged.
+    res.json({
+      url: `${origin}/_t/${token}/`,
+      origin,
+      expiresAt,
+      subdomain: sub.subdomain,
+      versionId: sub.current_version_id,
+    });
   });
 
   // FR-18: only the owner rolls back, and only while the assignment is open.

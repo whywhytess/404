@@ -62,7 +62,7 @@ a {
   color: var(--muted);
 }
 .container {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 }
@@ -252,4 +252,50 @@ button.secondary {
 }
 .issues code {
   font-weight: 600;
+}
+.button-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  text-decoration: none;
+}
+.button-link.secondary {
+  background: #fff;
+  color: var(--accent);
+}
+.review-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: 1rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .review-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.review-list,
+.review-preview {
+  margin: 0;
+}
+tr.selected {
+  background: #eef4ff;
+}
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.preview-frame {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
 }

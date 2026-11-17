@@ -11,6 +11,7 @@ import {
   type Version,
 } from '../api';
 import { Alert, Badge, Loading, useLoad } from './ui';
+import { ViewSiteLink } from './ViewSiteLink';
 
 type Phase = 'idle' | 'uploading' | 'processing';
 
@@ -105,6 +106,7 @@ export function SubmissionPanel({ assignment }: { assignment: Assignment }) {
       ) : (
         !loading && <p>You have not uploaded anything yet.</p>
       )}
+      {sub && current && <ViewSiteLink submissionId={sub.id} versionId={current.id} />}
 
       {open ? (
         <form onSubmit={onUpload} className="stack" aria-describedby="upload-help">

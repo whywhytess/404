@@ -13,6 +13,9 @@ import type { AccountType, UploadLimits } from '@webcove/shared';
 import { S3ObjectStore, type ObjectStore } from '@webcove/storage';
 
 export const ORIGIN = 'http://platform.test';
+export const TEST_TOKEN_KEY = Buffer.alloc(32, 42);
+export const TEST_CONTENT_DOMAIN = 'usercontent.test';
+export const TEST_CONTENT_URL_PATTERN = `http://{sub}.${TEST_CONTENT_DOMAIN}`;
 
 /** Read TEST_DATABASE_URL from the environment or the repository's .env file. */
 function testDatabaseUrl(): string {
@@ -68,6 +71,8 @@ export async function setupHarness(
   const store = opts.store ?? real;
   const app = createApp({
     store,
+    tokenKey: TEST_TOKEN_KEY,
+    contentUrlPattern: TEST_CONTENT_URL_PATTERN,
     beforeCommit: opts.beforeCommit,
     uploadLimits: opts.uploadLimits,
     db,

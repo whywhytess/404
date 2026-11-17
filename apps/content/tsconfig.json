@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base.json",
+  // The integration tests reuse the API's test harness, which needs the API's type augmentations.
+  "include": ["src", "test", "../api/src/types.d.ts"]
+}

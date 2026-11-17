@@ -18,13 +18,13 @@ publish > close/freeze > review loop > automated security tests > deployment > S
 | T-011 | Storage adapter (S3 API) + upload endpoint + atomic publish | FR-10/16/20, NFR-R1 | T-009, T-010 | Fault-injection tests pass | DONE |
 | T-012 | Upload refused when closed / course ended (row lock) | FR-09, FR-36 | T-011 | Race test | DONE |
 | T-013 | Version history, rollback, keep current + previous files | FR-17/18/19 | T-011 | — | DONE |
-| T-014 | Token library (sign/verify) | FR-23, NFR-S3 | — | Unit tests, ST-17 | NOT STARTED |
-| T-015 | Content server: host → submission → token → file; headers; MIME | FR-21–25 | T-011, T-014 | Header consistency test; ST-13/16/17/18 | NOT STARTED |
-| T-016 | Local two-site routing (platform 127.0.0.1, content *.localhost) | ADR-001 | T-015 | Two submissions in two origins | NOT STARTED |
-| T-017 | Review page: iframe, previous/next, new tab, refresh on expiry | FR-27/28 | T-015, T-008 | E2E | NOT STARTED |
-| T-018 | Take-down / restore + audit | FR-29/30 | T-015 | Valid token refused after take-down | NOT STARTED |
-| T-019 | Playwright attack fixture + ST-01–ST-12 | NFR-S1 | T-016 | Positive controls + violation events | NOT STARTED |
-| T-020 | F01–F04 written by developer; 4–6 unmodified MDN samples | NFR-C1, SRD 3.10 | T-016 | 3 engines; restriction-cost table | NOT STARTED |
+| T-014 | Token library (sign/verify) | FR-23, NFR-S3 | — | Unit tests, ST-17 | DONE (97 % line coverage) |
+| T-015 | Content server: host → submission → token → file; headers; MIME | FR-21–25 | T-011, T-014 | Header consistency test; ST-13/16/17/18 | DONE |
+| T-016 | Local two-site routing (platform 127.0.0.1, content *.localhost) | ADR-001 | T-015 | Two submissions in two origins | DONE |
+| T-017 | Review page: iframe, previous/next, new tab, refresh on expiry | FR-27/28 | T-015, T-008 | E2E | DONE |
+| T-018 | Take-down / restore + audit | FR-29/30 | T-015 | Valid token refused after take-down | DONE |
+| T-019 | Playwright attack fixture + ST-01–ST-12 | NFR-S1 | T-016 | Positive controls + violation events | DONE (local: platform 127.0.0.1, content *.localhost) |
+| T-020 | F01–F04 written by developer; 4–6 unmodified MDN samples | NFR-C1, SRD 3.10 | T-016 | 3 engines; restriction-cost table | DONE (local: platform 127.0.0.1, content *.localhost) |
 | T-021 | Quotas, upload/request rate limits, admin quota page | FR-32–35, ST-19 | T-011 | — | DONE |
 | T-022 | Retention deletion, 410, tombstones | FR-37, NFR-P1 | T-013 | Simulated-clock test | DONE |
 | T-023 | Deployment, TLS, backups, restore drill, manuals | NFR-S5, NFR-R2 | all | Clean deploy reproducible | NOT STARTED |

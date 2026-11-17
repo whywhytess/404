@@ -5,9 +5,9 @@ listed command was run and passed; `[PARTIAL]`; `[BLOCKED]`; `[NOT STARTED]`.
 
 ## Current phase
 
-Phase 2 (Safe upload & immutable versions): **Gate P2 passed** — malicious ZIPs rejected
-before anything is written; storage/DB fault injection never changes the published version.
-Next: Phase 3 (token library, content server on separate origins, security headers).
+Phase 3 (Isolated publishing): **core of Gate P3 passed** — two submissions on two
+independent origins, tokens checked on every request, uniform headers on every response,
+platform never serves student files. Browser-level attack tests (ST-01–ST-12) are next.
 
 ## Environment notes
 
@@ -58,6 +58,18 @@ Next: Phase 3 (token library, content server on separate origins, security heade
 - Found and fixed: SeaweedFS keeps empty folder names after deletion (tests now count objects);
   TypeScript 6 needs `"types": ["node"]` in packages
 
+### Phase 3 (same day)
+
+- [DONE] T-014 `packages/security`: HMAC-SHA-256 tokens (student 1 h, staff 4 h, max-lifetime and
+  future-iat checks), Appendix D header set
+- [DONE] T-015 `apps/content`: host → submission → token → file; 301 for folders; 400 for
+  traversal/encoded separators; 403 no/invalid/expired token or taken down; 404; 405; 410 retired;
+  identical headers on every response; never reads or sets cookies; token redacted in logs
+- [DONE] T-016 local two-site setup: platform `127.0.0.1:5173`, content `*.localhost:4000`
+- [DONE] T-017 review page (list + sandboxed iframe, previous/next, open in new tab, refresh
+  preview on expiry) and student "View my published site" link
+- `POST /api/submissions/:id/view-token` (owner, course staff, admin; classmates 404)
+
 ### Verification
 
 | Command | Result |
@@ -68,9 +80,10 @@ Next: Phase 3 (token library, content server on separate origins, security heade
 | `pnpm lint` | PASS (0 problems) |
 | `pnpm typecheck` | PASS |
 | `pnpm format:check` | PASS |
-| `npx vitest run` | PASS — 9 files, 79 tests |
+| `npx vitest run` | PASS — 12 files, 114 tests |
+| `vitest --coverage` (security) | 97.1 % lines |
 | `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
-| `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → close |
+| `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → view site on its own `*.localhost` origin (JS runs, `document.cookie` empty) → review iframe → close |
 | GitHub Actions | NOT RUN — no remote configured |
 
 ### Risks / decisions
@@ -85,6 +98,6 @@ Next: Phase 3 (token library, content server on separate origins, security heade
 
 ### Next 3 tasks
 
-1. T-014 token library (HMAC-SHA-256, role-based expiry) with unit tests (ST-17).
-2. T-015 content server: host → submission → token → file, Appendix D headers, MIME allow-list.
-3. T-016 local two-site routing and "View my site" / review iframe.
+1. T-019 Playwright attack fixture + ST-01–ST-12 with positive controls (bypassCSP) and violation events.
+2. T-018 take-down / restore with reason + audit (FR-29/30) and UI.
+3. T-020 F01–F04 sample sites + 4–6 unmodified MDN samples (licence check first).

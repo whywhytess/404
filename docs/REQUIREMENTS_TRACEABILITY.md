@@ -36,14 +36,14 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | FR-18 Roll back to previous (undoable) while open | S | DONE | `rollbackSubmission` | `uploads.test.ts`; e2e |
 | FR-19 Keep files of current + previous only | S | DONE | `files_deleted_at` + delete after commit; `sweepStorage` | `uploads.test.ts` FR-17–19, sweep |
 | FR-20 Atomic current-version switch | M | DONE | ADR-004; objects → verify → one transaction | `uploads.test.ts` NFR-R1 (storage failure, DB failure, concurrency) |
-| FR-21 Random subdomain per student × assignment | M | PARTIAL — allocated (12 chars, ~61 bits, retired list); served in Phase 3 | `services/subdomain.ts` | `uploads.test.ts` |
-| FR-22 Files only from content domain | M | NOT STARTED | ADR-001 | ST-03, ST-04 |
-| FR-23 Short-lived signed token | M | NOT STARTED | ADR-006 | ST-16, ST-17 |
-| FR-24 Uniform CSP, sandbox, headers | M | NOT STARTED | ADR-007 | header consistency, ST-05–12 |
-| FR-25 Content type from allow-list + `nosniff` | M | NOT STARTED | — | ST-13 |
+| FR-21 Random subdomain per student × assignment | M | DONE | `services/subdomain.ts` (12 chars, ~61 bits, never reused); content server host routing | `uploads.test.ts`; `content.test.ts` host routing; e2e (`*.localhost` origin) |
+| FR-22 Files only from content domain | M | DONE | `apps/content` is the only file server; platform API has no file routes | `content.test.ts`; e2e (site opens on separate origin, `document.cookie` empty) |
+| FR-23 Short-lived signed token | M | DONE | `packages/security/src/token.ts`; `POST /api/submissions/:id/view-token`; content server verification per request | `security.test.ts` ST-16/17; `content.test.ts` ST-16/17 + issuing |
+| FR-24 Uniform CSP, sandbox, headers | M | DONE (server side); browser effects tested in Phase 6 | `packages/security/src/headers.ts` (Appendix D verbatim); applied to every response | `security.test.ts` Appendix D; `content.test.ts` FR-24 identical headers on 200/301/400/403/404/405 |
+| FR-25 Content type from allow-list + `nosniff` | M | DONE | `CONTENT_TYPES` in `@webcove/shared` | `content.test.ts` FR-25, ST-13 |
 | FR-26 Rules on every assignment page | S | DONE (UI) | `apps/web/src/pages/AssignmentPage.tsx` `SubmissionRules` | `phase1-workflow.spec.ts` (rules heading visible) |
 | FR-27 Submission list for review | M | DONE | `GET /api/assignments/:id/review`; `ReviewPage` | `uploads.test.ts` FR-27; e2e |
-| FR-28 Sandboxed iframe, previous/next, new tab | M | NOT STARTED | — | ST-03, ST-10, ST-11 |
+| FR-28 Sandboxed iframe, previous/next, new tab | M | DONE (UI) — refresh button on expiry, no auto-reload | `apps/web/src/pages/ReviewPage.tsx` | e2e (iframe shows site; sandbox attribute exact) |
 | FR-29 Take-down / restore with reason | S | NOT STARTED | — | — |
 | FR-30 Audit log | S | PARTIAL — table, writer, admin viewer; take-down entries later | `audit.ts`, `GET /api/admin/audit-log` | `admin.test.ts`, `courses.test.ts`, `assignments.test.ts` |
 | FR-31 Mobile/desktop preview widths | C | NOT STARTED | — | — |
@@ -59,8 +59,8 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | NFR | Status | Notes |
 | --- | --- | --- |
 | NFR-S1 19 security cases pass | NOT STARTED | Phase 3–6 |
-| NFR-S2 No student files on platform; no `Set-Cookie` from content; no cookie-based decisions | NOT STARTED | Platform side: API has no file routes yet |
-| NFR-S3 Signed, bound, expiring tokens | NOT STARTED | ADR-006 |
+| NFR-S2 No student files on platform; no `Set-Cookie` from content; no cookie-based decisions | DONE (automated part) | `content.test.ts` ST-18 + header checks; sibling-cookie effect to be demonstrated manually on staging |
+| NFR-S3 Signed, bound, expiring tokens | DONE | `security.test.ts` (1 h / 4 h, binding, tamper, expiry) |
 | NFR-S4 Slow salted hash; HttpOnly/Secure/SameSite=Lax cookie | PARTIAL — Argon2id and HttpOnly/SameSite/no-Domain tested; `Secure` set when `NODE_ENV=production` (to verify on staging) | `auth.test.ts` |
 | NFR-S5 HTTPS, TLS 1.2+, HSTS | NOT STARTED | Phase 7 |
 | NFR-C1 F01–F04 work in 3 engines | NOT STARTED | F01–F04 written by developer (SRD 3.10) |
@@ -68,5 +68,5 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | NFR-R2 Backup and restore | NOT STARTED | Phase 7 |
 | NFR-U1 Publish in ≤ 3 steps | NOT STARTED | Phase 2 UI |
 | NFR-U2 Messages name the file and the fix | DONE | `messages.ts`; test asserts every warning names its file |
-| NFR-M1 ≥ 70 % coverage of validator/token/header modules; CI | PARTIAL — validator 95 % lines; token/header modules not written yet; CI not yet run on GitHub (no remote) | `vitest --coverage` |
+| NFR-M1 ≥ 70 % coverage of validator/token/header modules; CI | PARTIAL — validator 95 % lines, security (token + headers) 97 % lines; CI not yet run on GitHub (no remote) | `vitest --coverage` |
 | NFR-P1 Minimal personal data, retention deletion | PARTIAL — only name, e-mail, role, membership stored; deletion in Phase 5 | schema `0001_init.ts` |

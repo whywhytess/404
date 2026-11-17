@@ -208,6 +208,9 @@ importers:
       '@node-rs/argon2':
         specifier: ^2.2.2
         version: 2.2.2
+      '@webcove/security':
+        specifier: workspace:*
+        version: link:../../packages/security
       '@webcove/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -276,6 +279,46 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
 
+  apps/content:
+    dependencies:
+      '@webcove/security':
+        specifier: workspace:*
+        version: link:../../packages/security
+      '@webcove/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@webcove/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
+      kysely:
+        specifier: ^0.29.9
+        version: 0.29.9
+      pg:
+        specifier: ^8.23.1
+        version: 8.23.1
+      pino:
+        specifier: ^10.4.0
+        version: 10.4.0
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.6
+        version: 26.6.6
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      '@types/supertest':
+        specifier: ^7.2.1
+        version: 7.2.1
+      supertest:
+        specifier: ^7.3.2
+        version: 7.3.2
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+
   apps/web:
     dependencies:
       '@webcove/shared':
@@ -303,6 +346,12 @@ importers:
       vite:
         specifier: ^8.3.8
         version: 8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(tsx@4.23.15)
+
+  packages/security:
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.6
+        version: 26.6.6
 
   packages/shared: {}
 

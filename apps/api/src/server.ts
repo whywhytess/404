@@ -3,6 +3,7 @@ import { createDb } from './db/index.js';
 import { createApp } from './app.js';
 import { createLogger } from './logger.js';
 import { S3ObjectStore } from '@webcove/storage';
+import { parseTokenKey } from '@webcove/security';
 import { sweepStorage } from './services/publish.js';
 
 const config = loadConfig();
@@ -25,6 +26,8 @@ const app = createApp({
   secureCookie: config.NODE_ENV === 'production',
   trustProxy: config.TRUST_PROXY,
   store,
+  tokenKey: parseTokenKey(config.TOKEN_SECRET),
+  contentUrlPattern: config.CONTENT_URL_PATTERN,
 });
 
 const server = app.listen(config.API_PORT, () => {

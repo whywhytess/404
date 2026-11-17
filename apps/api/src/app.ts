@@ -32,6 +32,8 @@ export interface AppDeps {
   trustProxy?: number;
   rateLimits?: RateLimitSettings;
   store: ObjectStore;
+  tokenKey: Buffer;
+  contentUrlPattern: string;
   uploadLimits?: UploadLimits;
   /** Test hook for fault injection inside the publish transaction. */
   beforeCommit?: () => Promise<void>;
@@ -101,6 +103,8 @@ export function createApp(deps: AppDeps) {
     logger: deps.logger,
     limits: deps.uploadLimits,
     beforeCommit: deps.beforeCommit,
+    tokenKey: deps.tokenKey,
+    contentUrlPattern: deps.contentUrlPattern,
   };
   api.use('/assignments/:id/submission', requireAuth, ownSubmissionRoutes(subDeps));
   api.use('/submissions', requireAuth, submissionRoutes(subDeps));

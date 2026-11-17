@@ -158,3 +158,15 @@ export const formatBytes = (n: number) =>
     : n < 1024 * 1024
       ? `${(n / 1024).toFixed(1)} KB`
       : `${(n / 1024 / 1024).toFixed(1)} MB`;
+
+export interface ViewLink {
+  url: string;
+  origin: string;
+  expiresAt: string;
+  subdomain: string;
+  versionId: string;
+}
+
+/** Ask the platform for a short-lived access link to a submission (FR-23). */
+export const getViewLink = (submissionId: string) =>
+  api.post<ViewLink>(`/api/submissions/${submissionId}/view-token`);

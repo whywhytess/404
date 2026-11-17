@@ -137,6 +137,20 @@ test('student uploads: a valid ZIP is published, an unsafe ZIP is rejected, roll
   await page.getByRole('button', { name: 'Go back to version 1' }).click();
   await expect(page.getByText('Published: version 1')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Go back to version 2' })).toBeVisible();
+
+  // FR-22/23: the published site opens on its own subdomain of the content domain, and its
+  // local JavaScript runs under the policy (app.js changes the heading to "Hello").
+  const [site] = await Promise.all([
+    page.context().waitForEvent('page'),
+    page.getByRole('link', { name: 'View my published site ↗' }).click(),
+  ]);
+  await expect(site.getByRole('heading', { name: 'Hello' })).toBeVisible();
+  const siteUrl = new URL(site.url());
+  expect(siteUrl.hostname).toMatch(/^[a-z][a-z0-9]{11}\.localhost$/);
+  expect(siteUrl.pathname).toMatch(/^\/_t\/[^/]+\/$/);
+  // The platform session cookie is not available to the content origin.
+  expect(await site.evaluate(() => document.cookie)).toBe('');
+  await site.close();
   await signOut(page);
 });
 
@@ -147,6 +161,15 @@ test('instructor closes the assignment; the student sees it as closed', async ({
   await page.getByRole('link', { name: 'Review submissions →' }).click();
   await expect(page.getByRole('cell', { name: STUDENT.name })).toBeVisible();
   await expect(page.getByRole('cell', { name: 'v1', exact: true })).toBeVisible();
+
+  // FR-28: sandboxed preview of the student's site inside the review page.
+  await page.getByRole('button', { name: STUDENT.name }).click();
+  const frame = page.frameLocator('iframe.preview-frame');
+  await expect(frame.getByRole('heading', { name: 'Hello' })).toBeVisible();
+  await expect(page.locator('iframe.preview-frame')).toHaveAttribute(
+    'sandbox',
+    'allow-scripts allow-forms allow-same-origin allow-modals',
+  );
   await page.goBack();
 
   page.once('dialog', (d) => d.accept());
