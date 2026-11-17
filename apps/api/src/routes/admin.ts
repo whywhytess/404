@@ -8,6 +8,8 @@ import { presentUser } from '../presenters.js';
 import { assertUuid } from '../policy.js';
 import { audit } from '../audit.js';
 import { Email, Name } from '../validation.js';
+import { getSettings, updateSettings } from '../services/settings.js';
+import { sql } from 'kysely';
 
 const CreateStaffBody = z.object({ name: Name, email: Email });
 const UpdateStaffBody = z.object({ status: z.enum(['active', 'disabled']) });
@@ -106,6 +108,81 @@ export function adminRoutes(db: Kysely<Database>) {
       targetId: staff.id,
     });
     res.json({ user: presentUser(updated), temporaryPassword });
+  });
+
+  // FR-35: view and adjust quotas and limits; changes apply to the next request.
+  const MB = 1024 * 1024;
+  const SettingsBody = z.object({
+    storageQuotaBytes: z
+      .number()
+      .int()
+      .min(1 * MB)
+      .max(10 * 1024 * MB),
+    uploadsPerHour: z.number().int().min(1).max(1000),
+    contentRequestsPerSecond: z.number().int().min(1).max(10_000),
+    maxArchiveBytes: z
+      .number()
+      .int()
+      .min(10 * 1024)
+      .max(200 * MB),
+    maxFileBytes: z
+      .number()
+      .int()
+      .min(1024)
+      .max(200 * MB),
+    maxFiles: z.number().int().min(1).max(10_000),
+    maxTotalBytes: z
+      .number()
+      .int()
+      .min(10 * 1024)
+      .max(2 * 1024 * MB),
+    maxCompressionRatio: z.number().int().min(2).max(10_000),
+  });
+
+  r.get('/settings', async (_req, res) => {
+    res.json({ settings: await getSettings(db) });
+  });
+
+  r.put('/settings', async (req, res) => {
+    const body = parse(SettingsBody, req.body);
+    const before = await getSettings(db);
+    await updateSettings(db, body, req.user!.id);
+    await audit(db, {
+      actorId: req.user!.id,
+      action: 'settings.update',
+      targetType: 'settings',
+      targetId: 'platform',
+      metadata: { before, after: body },
+    });
+    res.json({ settings: await getSettings(db) });
+  });
+
+  // FR-35: storage usage per student (files currently kept: current + previous versions).
+  r.get('/usage', async (_req, res) => {
+    const rows = await db
+      .selectFrom('users')
+      .leftJoin('submissions', 'submissions.student_id', 'users.id')
+      .leftJoin('versions', (j) =>
+        j
+          .onRef('versions.submission_id', '=', 'submissions.id')
+          .on('versions.files_deleted_at', 'is', null),
+      )
+      .select((eb) => [
+        'users.id',
+        'users.name',
+        'users.email',
+        eb.fn.coalesce(eb.fn.sum<string>('versions.total_bytes'), sql<string>`0`).as('usedBytes'),
+      ])
+      .where('users.account_type', '!=', 'admin')
+      .groupBy(['users.id', 'users.name', 'users.email'])
+      .orderBy('usedBytes', 'desc')
+      .limit(200)
+      .execute();
+    const { storageQuotaBytes } = await getSettings(db);
+    res.json({
+      quotaBytes: storageQuotaBytes,
+      users: rows.map((r) => ({ ...r, usedBytes: Number(r.usedBytes) })),
+    });
   });
 
   r.get('/audit-log', async (req, res) => {

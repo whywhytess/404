@@ -34,6 +34,7 @@ export const ERROR_CODES = [
   'ARCHIVE_TOO_LARGE',
   'NO_PREVIOUS_VERSION',
   'STORAGE_UNAVAILABLE',
+  'QUOTA_EXCEEDED',
   'INTERNAL',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
@@ -98,3 +99,10 @@ export const DEFAULT_UPLOAD_LIMITS: UploadLimits = {
   maxTotalBytes: 100 * 1024 * 1024,
   maxCompressionRatio: 100,
 };
+
+/** Administrator-adjustable resource settings (FR-35; initial values from SRD Table 3.21). */
+export interface ResourceSettings extends UploadLimits {
+  storageQuotaBytes: number;
+  uploadsPerHour: number;
+  contentRequestsPerSecond: number;
+}

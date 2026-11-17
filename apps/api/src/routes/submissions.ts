@@ -5,7 +5,8 @@ import { Router, type RequestHandler } from 'express';
 import multer from 'multer';
 import type { Kysely } from 'kysely';
 import type { Logger } from 'pino';
-import { DEFAULT_UPLOAD_LIMITS, type UploadLimits } from '@webcove/shared';
+import type { UploadLimits } from '@webcove/shared';
+import { getSettings } from '../services/settings.js';
 import type { ObjectStore } from '@webcove/storage';
 import type { Database, Submission } from '../db/schema.js';
 import { AppError, forbidden, notFound, parse } from '../errors.js';
@@ -45,7 +46,6 @@ async function loadVersions(db: Kysely<Database>, submissionId: string) {
 /** Routes under /api/assignments/:id/submission (the signed-in student's own submission). */
 export function ownSubmissionRoutes(deps: SubmissionDeps) {
   const { db } = deps;
-  const limits = deps.limits ?? DEFAULT_UPLOAD_LIMITS;
   const r = Router({ mergeParams: true });
 
   // FR-17: the student's own submission and version history.
@@ -80,20 +80,52 @@ export function ownSubmissionRoutes(deps: SubmissionDeps) {
       .executeTakeFirstOrThrow();
     if (courseHasEnded(course.end_date))
       throw new AppError('COURSE_ENDED', 'This course has ended. Uploads are not accepted.');
-    res_locals(req).workDir = await mkdtemp(path.join(os.tmpdir(), 'webcove-upload-'));
+
+    // FR-35: limits are read on every upload, so administrator changes apply immediately.
+    const settings = await getSettings(db);
+    const limits: UploadLimits = deps.limits ?? settings;
+
+    // FR-33: uploads per student per assignment per hour (counts every attempt, accepted or not).
+    const since = new Date(Date.now() - 60 * 60 * 1000);
+    const recent = await db
+      .selectFrom('upload_attempts')
+      .select(['created_at'])
+      .where('student_id', '=', req.user!.id)
+      .where('assignment_id', '=', assignment.id)
+      .where('created_at', '>', since)
+      .orderBy('created_at', 'asc')
+      .execute();
+    if (recent.length >= settings.uploadsPerHour) {
+      const oldest = new Date(recent[0]!.created_at).getTime();
+      const retryAfter = Math.max(1, Math.ceil((oldest + 60 * 60 * 1000 - Date.now()) / 1000));
+      _res.setHeader('Retry-After', String(retryAfter));
+      throw new AppError(
+        'RATE_LIMITED',
+        `You can upload at most ${settings.uploadsPerHour} times per hour for this assignment. Try again in ${Math.ceil(retryAfter / 60)} minute(s).`,
+      );
+    }
+    await db
+      .insertInto('upload_attempts')
+      .values({ assignment_id: assignment.id, student_id: req.user!.id })
+      .execute();
+
+    const l = res_locals(req);
+    l.limits = limits;
+    l.quota = settings.storageQuotaBytes;
+    l.workDir = await mkdtemp(path.join(os.tmpdir(), 'webcove-upload-'));
     next();
   };
 
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: (req, _file, cb) => cb(null, res_locals(req).workDir!),
-      filename: (_req, _file, cb) => cb(null, 'archive.zip'),
-    }),
-    // FR-10: exactly one file; FR-11: archive size limit enforced while receiving.
-    limits: { fileSize: limits.maxArchiveBytes, files: 1, fields: 5, parts: 6 },
-  }).single('archive');
-
   const receive: RequestHandler = (req, res, next) => {
+    const limits = res_locals(req).limits!;
+    const upload = multer({
+      storage: multer.diskStorage({
+        destination: (rq, _file, cb) => cb(null, res_locals(rq).workDir!),
+        filename: (_rq, _file, cb) => cb(null, 'archive.zip'),
+      }),
+      // FR-10: exactly one file; FR-11: archive size limit enforced while receiving.
+      limits: { fileSize: limits.maxArchiveBytes, files: 1, fields: 5, parts: 6 },
+    }).single('archive');
     upload(req, res, async (err: unknown) => {
       if (!err) return next();
       await rm(res_locals(req).workDir!, { recursive: true, force: true });
@@ -120,7 +152,7 @@ export function ownSubmissionRoutes(deps: SubmissionDeps) {
     try {
       if (!req.file) throw new AppError('VALIDATION_FAILED', 'Choose a ZIP file to upload.');
       const result = await publishUpload(
-        deps,
+        { ...deps, limits: res_locals(req).limits, storageQuotaBytes: res_locals(req).quota },
         {
           assignmentId: paramId(req),
           studentId: req.user!.id,
@@ -142,7 +174,7 @@ export function ownSubmissionRoutes(deps: SubmissionDeps) {
   return r;
 }
 
-const locals = new WeakMap<object, { workDir?: string }>();
+const locals = new WeakMap<object, { workDir?: string; limits?: UploadLimits; quota?: number }>();
 function res_locals(req: object) {
   let l = locals.get(req);
   if (!l) locals.set(req, (l = {}));

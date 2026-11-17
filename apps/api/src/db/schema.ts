@@ -100,6 +100,29 @@ export interface RetiredSubdomainsTable {
   retired_at: Timestamp;
 }
 
+type BigInt = ColumnType<string, number | undefined, number>;
+
+export interface PlatformSettingsTable {
+  id: ColumnType<number, number | undefined, never>;
+  storage_quota_bytes: BigInt;
+  uploads_per_hour: ColumnType<number, number | undefined, number>;
+  content_requests_per_second: ColumnType<number, number | undefined, number>;
+  max_archive_bytes: BigInt;
+  max_file_bytes: BigInt;
+  max_files: ColumnType<number, number | undefined, number>;
+  max_total_bytes: BigInt;
+  max_compression_ratio: ColumnType<number, number | undefined, number>;
+  updated_at: Timestamp;
+  updated_by: string | null;
+}
+
+export interface UploadAttemptsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  student_id: string;
+  created_at: Timestamp;
+}
+
 export interface Database {
   users: UsersTable;
   courses: CoursesTable;
@@ -109,6 +132,8 @@ export interface Database {
   submissions: SubmissionsTable;
   versions: VersionsTable;
   retired_subdomains: RetiredSubdomainsTable;
+  platform_settings: PlatformSettingsTable;
+  upload_attempts: UploadAttemptsTable;
 }
 
 export type User = Selectable<UsersTable>;

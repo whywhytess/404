@@ -4,7 +4,7 @@ SRD Table 3.22 defines 19 cases. This report records what was actually run, wher
 lives, and what it does and does **not** prove. Passing shows that the controls stop these
 predefined attacks; it does not show that the system is safe against every possible attack.
 
-- Run date: 2026-11-17 · Environment: macOS, local stack (platform `http://127.0.0.1:5173`,
+- Run date: 2026-11-17 (ST-19 and Referer checks added the same day) · Environment: macOS, local stack (platform `http://127.0.0.1:5173`,
   content `http://<sub>.localhost:4100`), Chromium (Playwright 1.65, Chrome Headless Shell 159).
 - Commands: `pnpm test:security` (browser cases), `npx vitest run` (API/content/validator cases).
 - Local hostnames are different *sites* (IP vs `localhost`) but not two registered domains;
@@ -33,10 +33,10 @@ predefined attacks; it does not show that the system is safe against every possi
 | ST-16 | Classmate's URL / token for another subdomain | API | `security.test.ts`, `content.test.ts` ST-16, view-token issuing | — | **PASS** — classmates cannot obtain a token (404); a token is refused on another subdomain (403). Forwarding a valid link works until expiry (accepted residual risk, SRD limitation 5) |
 | ST-17 | Expired or modified token | API | `security.test.ts` ST-17, `content.test.ts` ST-17 | — | **PASS** |
 | ST-18 | Cookie tossing from a sibling site | API (automated part) | `content.test.ts` ST-18 | — | **PASS (automated part)** — content server never sets cookies; forged parent-domain cookies do not change any decision. Effect on sibling sites: manual demonstration on staging NOT DONE yet (residual risk, SRD limitation 4) |
-| ST-19 | Flood uploads or requests | API | — | — | **NOT RUN** — rate limits (FR-33, FR-34) not implemented yet |
+| ST-19 | Flood uploads or requests | API | `apps/api/test/integration/resource-control.test.ts` ST-19; `apps/content/test/integration/content.test.ts` ST-19 | Requests below the limit succeed | **PASS** — upload attempt over the hourly limit → 429 + `Retry-After`; requests over the per-subdomain limit → 429 with the full security header set; other subdomains and the next second unaffected. Cloudflare edge limit: to verify at deployment |
 
-Summary: 17 of 19 cases have automated results (16 PASS + ST-11 direct documented as residual
-alongside its PASS in the review iframe); ST-18 manual part and ST-19 are outstanding;
+Summary: all 19 cases have automated results (ST-11 direct documented as a residual risk
+alongside its PASS in the review iframe); the ST-18 manual staging demonstration is outstanding;
 cross-browser runs (ST-02, ST-07, ST-11 in Firefox and WebKit) are outstanding.
 
 ## Notes

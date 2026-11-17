@@ -47,10 +47,10 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | FR-29 Take-down / restore with reason | S | DONE | `POST /api/submissions/:id/takedown|restore`; review UI | `moderation.test.ts`; `content.test.ts` (valid token refused when taken down) |
 | FR-30 Audit log | S | DONE | `audit.ts`; staff, course, assignment and take-down actions; admin viewer | `admin.test.ts`, `courses.test.ts`, `assignments.test.ts`, `moderation.test.ts` |
 | FR-31 Mobile/desktop preview widths | C | NOT STARTED | — | — |
-| FR-32 Storage quota | S | NOT STARTED | — | — |
-| FR-33 Uploads per student per assignment per hour | S | NOT STARTED | — | ST-19 |
-| FR-34 Requests per subdomain per second | S | NOT STARTED | — | ST-19 |
-| FR-35 Admin views/adjusts quotas | S | NOT STARTED | — | — |
+| FR-32 Storage quota | S | DONE | `services/settings.ts` `storageUsedBy` (current + previous files); checked inside the publish transaction | `resource-control.test.ts` FR-32 |
+| FR-33 Uploads per student per assignment per hour | S | DONE | `upload_attempts` table; checked before the body is received; 429 + `Retry-After` | `resource-control.test.ts` ST-19/FR-33 |
+| FR-34 Requests per subdomain per second | S | DONE (content server, in memory; Cloudflare edge limit at deployment) | `apps/content/src/rate-limit.ts` | `content.test.ts` ST-19/FR-34 |
+| FR-35 Admin views/adjusts quotas, sees storage usage | S | DONE | `GET/PUT /api/admin/settings`, `GET /api/admin/usage`; admin UI | `resource-control.test.ts` FR-35; `content.test.ts` (limit read from DB) |
 | FR-36 Course end date stops uploads/rollbacks | S | PARTIAL — end date stored, editable; joining blocked after end; upload check in Phase 2 | `courses.ts` `courseHasEnded` | unit + `courses.test.ts` |
 | FR-37 Retention deletion, 410, never reassigned | S | NOT STARTED | ADR-009 | — |
 
@@ -58,7 +58,7 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 
 | NFR | Status | Notes |
 | --- | --- | --- |
-| NFR-S1 19 security cases pass | PARTIAL — see `docs/SECURITY_TEST_REPORT.md`: 17 automated (Chromium), ST-18 manual and ST-19 outstanding | `pnpm test:security`, `npx vitest run` |
+| NFR-S1 19 security cases pass | PARTIAL — see `docs/SECURITY_TEST_REPORT.md`: 18 automated (Chromium), ST-18 manual part outstanding | `pnpm test:security`, `npx vitest run` |
 | NFR-S2 No student files on platform; no `Set-Cookie` from content; no cookie-based decisions | DONE (automated part) | `content.test.ts` ST-18 + header checks; sibling-cookie effect to be demonstrated manually on staging |
 | NFR-S3 Signed, bound, expiring tokens | DONE | `security.test.ts` (1 h / 4 h, binding, tamper, expiry) |
 | NFR-S4 Slow salted hash; HttpOnly/Secure/SameSite=Lax cookie | PARTIAL — Argon2id and HttpOnly/SameSite/no-Domain tested; `Secure` set when `NODE_ENV=production` (to verify on staging) | `auth.test.ts` |

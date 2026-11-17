@@ -17,7 +17,7 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
   (another project already uses 5432 and 9000; do not touch its containers).
 - Object storage is SeaweedFS 4.54, because MinIO images can no longer be pulled (ADR-012).
 - TypeScript pinned to 6.0 (typescript-eslint does not support TS 7 yet).
-- No Git remote yet, so the GitHub Actions workflow has not run on GitHub.
+- Remote: https://github.com/whywhytess/404 (public). Commit messages contain no tool attribution.
 
 ## Decisions taken with the user (2026-11-17)
 
@@ -76,6 +76,17 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
   ST-01–ST-12 (ST-10/ST-11 in review iframe and direct). Finding: a directly opened page can
   navigate its own tab (ST-11 direct) — documented as residual risk, platform tab unaffected
 
+### Session 2026-11-17 (afternoon)
+
+- Remote configured and pushed; CI green after a formatting fix (run 44057639696).
+- SRD made consistent with the implementation (course vault file): limitation 6 (self-navigation
+  of a directly opened site), ST-11 contexts in 3.10 and Table 3.22, SeaweedFS and local hosts in
+  3.9.4 / Table 3.24, token fields in 3.9.3; changes logged in the SRD's design-change table.
+- Security tests now also assert that no request to the attacker carries the token in `Referer`,
+  and e2e asserts `window.opener === null` and an empty `document.referrer` on the opened site.
+- [DONE] T-021 FR-32 – FR-35: storage quota, hourly upload limit, per-subdomain request limit,
+  admin settings + usage (API and UI); migration `0003_resource_control`. ST-19 PASS.
+
 ### Verification
 
 | Command | Result |
@@ -86,13 +97,13 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 | `pnpm lint` | PASS (0 problems) |
 | `pnpm typecheck` | PASS |
 | `pnpm format:check` | PASS |
-| `npx vitest run` | PASS — 12 files, 114 tests |
+| `npx vitest run` | PASS — 14 files, 125 tests |
 | `vitest --coverage` (security) | 97.1 % lines |
 | `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
 | `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → view site on its own `*.localhost` origin (JS runs, `document.cookie` empty) → review iframe → close |
 | `pnpm test:security` (Chromium) | PASS — 14 tests (ST-01–ST-12, positive controls) |
 | `npx playwright test` (e2e + security) | PASS — 19 tests |
-| GitHub Actions | NOT RUN — no remote configured |
+| GitHub Actions | PASS — check + e2e jobs (run 44057639696) |
 
 ### Risks / decisions
 
@@ -107,5 +118,5 @@ positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 ### Next 3 tasks
 
 1. T-020 F01–F04 sample sites (developer-written) + 4–6 unmodified MDN samples (licence check first).
-2. T-021 quotas and rate limits (FR-32–35) → ST-19.
-3. Cross-browser runs (Firefox, WebKit) for ST-02, ST-07, ST-11 and the samples.
+2. Cross-browser runs (Firefox, WebKit) for ST-02, ST-07, ST-11 and the samples.
+3. Deployment preparation (production compose, reverse proxy, TLS) — needs two domains + VPS from the user.

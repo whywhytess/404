@@ -14,6 +14,7 @@ import type { Logger } from 'pino';
 import { CONTENT_TYPES } from '@webcove/shared';
 import { contentSecurityHeaders, verifyToken } from '@webcove/security';
 import { versionKey, type ObjectStore } from '@webcove/storage';
+import { SubdomainRateLimiter } from './rate-limit.js';
 
 /** The two tables the content server reads. It never writes to the database. */
 export interface ContentDatabase {
@@ -24,6 +25,7 @@ export interface ContentDatabase {
     taken_down_at: Date | null;
   };
   retired_subdomains: { subdomain: string };
+  platform_settings: { id: number; content_requests_per_second: number };
 }
 
 export interface ContentDeps {
@@ -35,6 +37,8 @@ export interface ContentDeps {
   /** Registrable content domain, e.g. "example-usercontent.net" (or "localhost" in development). */
   contentDomain: string;
   now?: () => number;
+  /** Override the database setting (tests). */
+  requestsPerSecond?: number;
 }
 
 export const SUBDOMAIN_LABEL = /^[a-z][a-z0-9]{11}$/;
@@ -64,6 +68,10 @@ const PAGES = {
     'There is no file at this address in the submission. Links between files must use relative paths, e.g. "css/style.css".',
   ),
   405: page('Method not allowed', 'Only GET and HEAD requests are supported.'),
+  429: page(
+    'Too many requests',
+    'This site is receiving too many requests. Wait a moment and reload the page.',
+  ),
   410: page('Gone', 'This submission has been deleted.'),
   500: page('Error', 'Something went wrong while loading this page.'),
 } as const;
@@ -105,6 +113,21 @@ export function createContentHandler(deps: ContentDeps) {
   const security = contentSecurityHeaders({ platformOrigin: deps.platformOrigin });
   const suffix = `.${deps.contentDomain.toLowerCase()}`;
   const now = deps.now ?? Date.now;
+  const limiter = new SubdomainRateLimiter(now);
+  // FR-35: the limit is administrator-adjustable; re-read it at most every 30 seconds.
+  let cachedLimit = { value: 50, at: -Infinity };
+  async function requestsPerSecond(): Promise<number> {
+    if (deps.requestsPerSecond !== undefined) return deps.requestsPerSecond;
+    if (now() - cachedLimit.at > 30_000) {
+      const row = await deps.db
+        .selectFrom('platform_settings')
+        .select('content_requests_per_second')
+        .where('id', '=', 1)
+        .executeTakeFirst();
+      cachedLimit = { value: row?.content_requests_per_second ?? 50, at: now() };
+    }
+    return cachedLimit.value;
+  }
 
   function send(
     res: ServerResponse,
@@ -142,6 +165,11 @@ export function createContentHandler(deps: ContentDeps) {
       if (!host.endsWith(suffix)) return send(res, req, 404, PAGES[404]);
       const label = host.slice(0, -suffix.length);
       if (!SUBDOMAIN_LABEL.test(label)) return send(res, req, 404, PAGES[404]);
+
+      // FR-34: checked before any token or database work, so floods stay cheap.
+      if (!limiter.allow(label, await requestsPerSecond())) {
+        return send(res, req, 429, PAGES[429], { 'Retry-After': '1' });
+      }
 
       if (req.method !== 'GET' && req.method !== 'HEAD')
         return send(res, req, 405, PAGES[405], { Allow: 'GET, HEAD' });

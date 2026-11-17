@@ -96,6 +96,11 @@ export function client(app: Express) {
         .post(url)
         .set('Origin', ORIGIN)
         .send(body ?? {}),
+    put: (url: string, body?: object) =>
+      agent
+        .put(url)
+        .set('Origin', ORIGIN)
+        .send(body ?? {}),
     patch: (url: string, body?: object) =>
       agent
         .patch(url)

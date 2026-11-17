@@ -278,3 +278,79 @@ describe('FR-23 issuing access links (platform API)', () => {
     ).toBe(404);
   });
 });
+
+describe('ST-19 / FR-34 requests per subdomain per second', () => {
+  it('returns 429 with the security headers above the limit, per subdomain, and recovers next second', async () => {
+    let t = Date.UTC(2027, 0, 1, 0, 0, 0, 100);
+    const limited = createContentHandler({
+      db: h.db.kysely as unknown as Kysely<ContentDatabase>,
+      store: h.store,
+      logger: pino({ level: 'silent' }),
+      tokenKey: TEST_TOKEN_KEY,
+      platformOrigin: ORIGIN,
+      contentDomain: TEST_CONTENT_DOMAIN,
+      now: () => t,
+      requestsPerSecond: 5,
+    });
+    const token = signToken(
+      TEST_TOKEN_KEY,
+      { subdomain: mine.sub, userId: 'x', role: 'student' },
+      t,
+    ).token;
+    const hit = (sub: string, tok = token) =>
+      request(limited).get(`/_t/${tok}/`).set('Host', host(sub));
+    const statuses: number[] = [];
+    for (let i = 0; i < 6; i++) statuses.push((await hit(mine.sub)).status);
+    expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
+    const blocked = await hit(mine.sub);
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers['retry-after']).toBe('1');
+    expectSecurityHeaders(blocked);
+
+    // Another subdomain has its own budget.
+    const other = signToken(
+      TEST_TOKEN_KEY,
+      { subdomain: classmate.sub, userId: 'x', role: 'student' },
+      t,
+    ).token;
+    expect((await hit(classmate.sub, other)).status).toBe(200);
+
+    t += 1000;
+    expect((await hit(mine.sub)).status).toBe(200);
+  });
+
+  it('reads the administrator-set limit from the database (FR-35)', async () => {
+    await admin.put('/api/admin/settings', {
+      storageQuotaBytes: 200 * 1024 * 1024,
+      uploadsPerHour: 10,
+      contentRequestsPerSecond: 2,
+      maxArchiveBytes: 20 * 1024 * 1024,
+      maxFileBytes: 5 * 1024 * 1024,
+      maxFiles: 500,
+      maxTotalBytes: 100 * 1024 * 1024,
+      maxCompressionRatio: 100,
+    });
+    const t = Date.UTC(2027, 0, 2, 0, 0, 0, 100);
+    const fromDb = createContentHandler({
+      db: h.db.kysely as unknown as Kysely<ContentDatabase>,
+      store: h.store,
+      logger: pino({ level: 'silent' }),
+      tokenKey: TEST_TOKEN_KEY,
+      platformOrigin: ORIGIN,
+      contentDomain: TEST_CONTENT_DOMAIN,
+      now: () => t,
+    });
+    const token = signToken(
+      TEST_TOKEN_KEY,
+      { subdomain: mine.sub, userId: 'x', role: 'student' },
+      t,
+    ).token;
+    const statuses: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      statuses.push(
+        (await request(fromDb).get(`/_t/${token}/`).set('Host', host(mine.sub))).status,
+      );
+    }
+    expect(statuses).toEqual([200, 200, 429]);
+  });
+});

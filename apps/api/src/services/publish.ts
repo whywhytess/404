@@ -24,12 +24,15 @@ import type { Database, Submission, Version } from '../db/schema.js';
 import { AppError } from '../errors.js';
 import { courseHasEnded } from '../routes/courses.js';
 import { generateSubdomain } from './subdomain.js';
+import { storageUsedBy } from './settings.js';
 
 export interface PublishContext {
   db: Kysely<Database>;
   store: ObjectStore;
   logger: Logger;
   limits?: UploadLimits;
+  /** FR-32: per-student storage quota in bytes (unlimited when omitted). */
+  storageQuotaBytes?: number;
 }
 
 const isUniqueViolation = (err: unknown) =>
@@ -158,6 +161,16 @@ export async function publishUpload(
         outcome = await ctx.db.transaction().execute(async (trx) => {
           await assertOpenForChanges(trx, input.assignmentId);
           const sub = await getOrCreateSubmission(trx, input.assignmentId, input.studentId);
+          // FR-32: the previous version's files are about to be retired, so they do not count.
+          if (ctx.storageQuotaBytes !== undefined) {
+            const used = await storageUsedBy(trx, input.studentId, sub.previous_version_id);
+            if (used + result.totalBytes > ctx.storageQuotaBytes) {
+              throw new AppError(
+                'QUOTA_EXCEEDED',
+                `This upload would exceed your storage quota of ${Math.round(ctx.storageQuotaBytes / 1024 / 1024)} MB (in use: ${Math.round(used / 1024 / 1024)} MB). Make the site smaller and try again. Your published version is unchanged.`,
+              );
+            }
+          }
           const { max } = await trx
             .selectFrom('versions')
             .select((eb) => eb.fn.max('number').as('max'))

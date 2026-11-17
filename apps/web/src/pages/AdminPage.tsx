@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
-import { api, errorMessage, fieldErrors, type Course, type PublicUser } from '../api';
+import { api, errorMessage, fieldErrors, formatBytes, type Course, type PublicUser } from '../api';
+import type { ResourceSettings } from '@webcove/shared';
 import { Alert, Badge, Field, Loading, useLoad } from '../components/ui';
 
 export function AdminPage() {
@@ -9,6 +10,8 @@ export function AdminPage() {
       <h1>Administration</h1>
       <CoursesSection />
       <StaffSection />
+      <SettingsSection />
+      <UsageSection />
       <AuditSection />
     </>
   );
@@ -247,6 +250,123 @@ function AuditSection() {
           ))}
         </tbody>
       </table>
+    </section>
+  );
+}
+
+const MB = 1024 * 1024;
+/** Fields shown in MB are converted to bytes for the API. */
+const SETTING_FIELDS: { key: keyof ResourceSettings; label: string; mb?: boolean }[] = [
+  { key: 'storageQuotaBytes', label: 'Storage per student (MB)', mb: true },
+  { key: 'uploadsPerHour', label: 'Uploads per student per assignment per hour' },
+  { key: 'contentRequestsPerSecond', label: 'Requests per site per second' },
+  { key: 'maxArchiveBytes', label: 'Maximum ZIP size (MB)', mb: true },
+  { key: 'maxFileBytes', label: 'Maximum single file (MB)', mb: true },
+  { key: 'maxFiles', label: 'Maximum number of files' },
+  { key: 'maxTotalBytes', label: 'Maximum unpacked size (MB)', mb: true },
+  { key: 'maxCompressionRatio', label: 'Maximum compression ratio (x:1)' },
+];
+
+/** FR-35: view and adjust quotas and limits. */
+function SettingsSection() {
+  const { data, error, loading, setData } = useLoad(
+    () => api.get<{ settings: ResourceSettings }>('/api/admin/settings'),
+    [],
+  );
+  const [formError, setFormError] = useState('');
+  const [saved, setSaved] = useState('');
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const body = Object.fromEntries(
+      SETTING_FIELDS.map((f) => {
+        const n = Number(fd.get(f.key));
+        return [f.key, f.mb ? Math.round(n * MB) : n];
+      }),
+    );
+    setFormError('');
+    setSaved('');
+    try {
+      const res = await api.put<{ settings: ResourceSettings }>('/api/admin/settings', body);
+      setData(res);
+      setSaved('Saved. New limits apply to the next upload or request.');
+    } catch (err) {
+      setFormError(errorMessage(err));
+    }
+  }
+
+  return (
+    <section className="card">
+      <h2>Quotas and limits</h2>
+      {loading && <Loading />}
+      <Alert>{error || formError}</Alert>
+      <Alert kind="success">{saved}</Alert>
+      {data && (
+        <form onSubmit={onSubmit} className="settings-grid">
+          {SETTING_FIELDS.map((f) => (
+            <Field
+              key={f.key}
+              label={f.label}
+              name={f.key}
+              type="number"
+              min={f.mb ? 0.01 : 1}
+              step={f.mb ? 0.01 : 1}
+              required
+              defaultValue={
+                f.mb
+                  ? String(Math.round((data.settings[f.key] / MB) * 100) / 100)
+                  : String(data.settings[f.key])
+              }
+            />
+          ))}
+          <div>
+            <button type="submit">Save limits</button>
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}
+
+function UsageSection() {
+  const { data, error, loading } = useLoad(
+    () =>
+      api.get<{
+        quotaBytes: number;
+        users: { id: string; name: string; email: string; usedBytes: number }[];
+      }>('/api/admin/usage'),
+    [],
+  );
+  return (
+    <section className="card">
+      <h2>Storage usage</h2>
+      {loading && <Loading />}
+      <Alert>{error}</Alert>
+      {data && (
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">User</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Used</th>
+              <th scope="col">Of quota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.users
+              .filter((u) => u.usedBytes > 0)
+              .map((u) => (
+                <tr key={u.id}>
+                  <td>{u.name}</td>
+                  <td>{u.email}</td>
+                  <td>{formatBytes(u.usedBytes)}</td>
+                  <td>{Math.round((u.usedBytes / data.quotaBytes) * 100)}%</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }
