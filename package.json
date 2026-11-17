@@ -22,7 +22,8 @@
     "db:migrate": "pnpm --filter @webcove/api db:migrate",
     "db:seed:demo": "pnpm --filter @webcove/api db:seed:demo",
     "test:e2e": "playwright test tests/e2e",
-    "fixtures:archives": "tsx scripts/generate-attack-zips.ts"
+    "fixtures:archives": "tsx scripts/generate-attack-zips.ts",
+    "test:security": "playwright test tests/security"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

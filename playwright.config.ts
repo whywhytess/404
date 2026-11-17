@@ -14,7 +14,7 @@ const S3_ENV = {
 
 export default defineConfig({
   testDir: 'tests',
-  testMatch: ['e2e/**/*.spec.ts'],
+  testMatch: ['e2e/**/*.spec.ts', 'security/**/*.spec.ts'],
   fullyParallel: false,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],

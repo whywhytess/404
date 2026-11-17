@@ -20,7 +20,7 @@ const SANDBOX = 'allow-scripts allow-forms allow-same-origin allow-modals';
 /** FR-27 list + FR-28 sandboxed preview with previous/next and "open in new tab". */
 export function ReviewPage() {
   const { id = '' } = useParams();
-  const { data, error, loading } = useLoad(
+  const { data, error, loading, reload } = useLoad(
     () =>
       api.get<{ assignment: Assignment; submissions: ReviewRow[] }>(
         `/api/assignments/${id}/review`,
@@ -121,6 +121,7 @@ export function ReviewPage() {
               onNext={
                 selected! < submitted.length - 1 ? () => setSelected(selected! + 1) : undefined
               }
+              onModerated={reload}
             />
           ) : (
             <p className="hint">
@@ -140,11 +141,13 @@ function Preview({
   position,
   onPrev,
   onNext,
+  onModerated,
 }: {
   row: ReviewRow;
   position: string;
   onPrev?: () => void;
   onNext?: () => void;
+  onModerated: () => void;
 }) {
   const [link, setLink] = useState<ViewLink | null>(null);
   const [error, setError] = useState('');
@@ -170,6 +173,24 @@ function Preview({
     return () => clearInterval(t);
   }, []);
 
+  // FR-29: take down / restore with a recorded reason.
+  async function moderate(action: 'takedown' | 'restore') {
+    const reason = prompt(
+      action === 'takedown'
+        ? `Why are you taking down the site of ${row.student.name}? (recorded in the audit log)`
+        : `Why are you restoring the site of ${row.student.name}? (recorded in the audit log)`,
+    );
+    if (reason === null) return;
+    setError('');
+    try {
+      await api.post(`/api/submissions/${row.submission!.id}/${action}`, { reason });
+      onModerated();
+      setReloadKey((k) => k + 1);
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+  }
+
   // The platform cannot see a 403 inside a cross-origin iframe, so expiry is shown from the
   // known expiry time and the user refreshes explicitly (no automatic reload, which would
   // discard the state of the student's page).
@@ -192,6 +213,15 @@ function Preview({
           <button type="button" className="secondary" onClick={refresh}>
             Refresh preview
           </button>
+          {row.submission!.takenDown ? (
+            <button type="button" className="secondary" onClick={() => moderate('restore')}>
+              Restore site
+            </button>
+          ) : (
+            <button type="button" className="danger" onClick={() => moderate('takedown')}>
+              Take down
+            </button>
+          )}
           {link && !expired && (
             <a
               href={link.url}

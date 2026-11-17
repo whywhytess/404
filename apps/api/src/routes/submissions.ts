@@ -8,7 +8,10 @@ import type { Logger } from 'pino';
 import { DEFAULT_UPLOAD_LIMITS, type UploadLimits } from '@webcove/shared';
 import type { ObjectStore } from '@webcove/storage';
 import type { Database, Submission } from '../db/schema.js';
-import { AppError, forbidden, notFound } from '../errors.js';
+import { AppError, forbidden, notFound, parse } from '../errors.js';
+import { audit } from '../audit.js';
+import { z } from 'zod';
+import { sql } from 'kysely';
 import { assertUuid, authoriseAssignment, getCourseRole } from '../policy.js';
 import { presentSubmission, presentVersion } from '../presenters.js';
 import { courseHasEnded } from './courses.js';
@@ -207,6 +210,47 @@ export function submissionRoutes(deps: SubmissionDeps) {
       versionId: sub.current_version_id,
     });
   });
+
+  /**
+   * FR-29 / FR-30: instructors, TAs and administrators take a submission down or restore it,
+   * with a recorded reason. Take-down overrides every valid token on the content server.
+   */
+  const ModerationBody = z.object({
+    reason: z.string().trim().min(3, 'Give a short reason').max(500),
+  });
+  for (const action of ['takedown', 'restore'] as const) {
+    r.post(`/:id/${action}`, async (req, res) => {
+      const { sub, viewerRole } = await loadForUser(
+        String(req.params.id),
+        req.user!.id,
+        req.user!.account_type,
+      );
+      if (viewerRole === 'student')
+        throw forbidden('Only course staff can take submissions down or restore them');
+      const { reason } = parse(ModerationBody, req.body);
+      const updated = await db.transaction().execute(async (trx) => {
+        const row = await trx
+          .updateTable('submissions')
+          .set(
+            action === 'takedown'
+              ? { taken_down_at: sql`now()`, taken_down_reason: reason, updated_at: sql`now()` }
+              : { taken_down_at: null, taken_down_reason: null, updated_at: sql`now()` },
+          )
+          .where('id', '=', sub.id)
+          .returningAll()
+          .executeTakeFirstOrThrow();
+        await audit(trx, {
+          actorId: req.user!.id,
+          action: `submission.${action}`,
+          targetType: 'submission',
+          targetId: sub.id,
+          reason,
+        });
+        return row;
+      });
+      res.json({ submission: presentSubmission(updated) });
+    });
+  }
 
   // FR-18: only the owner rolls back, and only while the assignment is open.
   r.post('/:id/rollback', async (req, res) => {

@@ -44,8 +44,8 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 | FR-26 Rules on every assignment page | S | DONE (UI) | `apps/web/src/pages/AssignmentPage.tsx` `SubmissionRules` | `phase1-workflow.spec.ts` (rules heading visible) |
 | FR-27 Submission list for review | M | DONE | `GET /api/assignments/:id/review`; `ReviewPage` | `uploads.test.ts` FR-27; e2e |
 | FR-28 Sandboxed iframe, previous/next, new tab | M | DONE (UI) — refresh button on expiry, no auto-reload | `apps/web/src/pages/ReviewPage.tsx` | e2e (iframe shows site; sandbox attribute exact) |
-| FR-29 Take-down / restore with reason | S | NOT STARTED | — | — |
-| FR-30 Audit log | S | PARTIAL — table, writer, admin viewer; take-down entries later | `audit.ts`, `GET /api/admin/audit-log` | `admin.test.ts`, `courses.test.ts`, `assignments.test.ts` |
+| FR-29 Take-down / restore with reason | S | DONE | `POST /api/submissions/:id/takedown|restore`; review UI | `moderation.test.ts`; `content.test.ts` (valid token refused when taken down) |
+| FR-30 Audit log | S | DONE | `audit.ts`; staff, course, assignment and take-down actions; admin viewer | `admin.test.ts`, `courses.test.ts`, `assignments.test.ts`, `moderation.test.ts` |
 | FR-31 Mobile/desktop preview widths | C | NOT STARTED | — | — |
 | FR-32 Storage quota | S | NOT STARTED | — | — |
 | FR-33 Uploads per student per assignment per hour | S | NOT STARTED | — | ST-19 |
@@ -58,7 +58,7 @@ Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec
 
 | NFR | Status | Notes |
 | --- | --- | --- |
-| NFR-S1 19 security cases pass | NOT STARTED | Phase 3–6 |
+| NFR-S1 19 security cases pass | PARTIAL — see `docs/SECURITY_TEST_REPORT.md`: 17 automated (Chromium), ST-18 manual and ST-19 outstanding | `pnpm test:security`, `npx vitest run` |
 | NFR-S2 No student files on platform; no `Set-Cookie` from content; no cookie-based decisions | DONE (automated part) | `content.test.ts` ST-18 + header checks; sibling-cookie effect to be demonstrated manually on staging |
 | NFR-S3 Signed, bound, expiring tokens | DONE | `security.test.ts` (1 h / 4 h, binding, tamper, expiry) |
 | NFR-S4 Slow salted hash; HttpOnly/Secure/SameSite=Lax cookie | PARTIAL — Argon2id and HttpOnly/SameSite/no-Domain tested; `Secure` set when `NODE_ENV=production` (to verify on staging) | `auth.test.ts` |

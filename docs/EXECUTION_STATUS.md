@@ -7,7 +7,8 @@ listed command was run and passed; `[PARTIAL]`; `[BLOCKED]`; `[NOT STARTED]`.
 
 Phase 3 (Isolated publishing): **core of Gate P3 passed** — two submissions on two
 independent origins, tokens checked on every request, uniform headers on every response,
-platform never serves student files. Browser-level attack tests (ST-01–ST-12) are next.
+platform never serves student files. Browser attack tests ST-01–ST-12 pass in Chromium with
+positive controls (see `docs/SECURITY_TEST_REPORT.md`).
 
 ## Environment notes
 
@@ -70,6 +71,11 @@ platform never serves student files. Browser-level attack tests (ST-01–ST-12) 
   preview on expiry) and student "View my published site" link
 - `POST /api/submissions/:id/view-token` (owner, course staff, admin; classmates 404)
 
+- [DONE] T-018 take-down / restore with reason + audit; review UI buttons
+- [DONE] T-019 shared attack fixture (`tests/fixtures/attack-site`) + 14 Playwright tests for
+  ST-01–ST-12 (ST-10/ST-11 in review iframe and direct). Finding: a directly opened page can
+  navigate its own tab (ST-11 direct) — documented as residual risk, platform tab unaffected
+
 ### Verification
 
 | Command | Result |
@@ -84,6 +90,8 @@ platform never serves student files. Browser-level attack tests (ST-01–ST-12) 
 | `vitest --coverage` (security) | 97.1 % lines |
 | `vitest --coverage` (zip-validator) | 95.1 % lines, 82.2 % branches |
 | `pnpm test:e2e` (Playwright, Chromium) | PASS — 5 tests: admin → instructor → student join → upload/reject/rollback → view site on its own `*.localhost` origin (JS runs, `document.cookie` empty) → review iframe → close |
+| `pnpm test:security` (Chromium) | PASS — 14 tests (ST-01–ST-12, positive controls) |
+| `npx playwright test` (e2e + security) | PASS — 19 tests |
 | GitHub Actions | NOT RUN — no remote configured |
 
 ### Risks / decisions
@@ -98,6 +106,6 @@ platform never serves student files. Browser-level attack tests (ST-01–ST-12) 
 
 ### Next 3 tasks
 
-1. T-019 Playwright attack fixture + ST-01–ST-12 with positive controls (bypassCSP) and violation events.
-2. T-018 take-down / restore with reason + audit (FR-29/30) and UI.
-3. T-020 F01–F04 sample sites + 4–6 unmodified MDN samples (licence check first).
+1. T-020 F01–F04 sample sites (developer-written) + 4–6 unmodified MDN samples (licence check first).
+2. T-021 quotas and rate limits (FR-32–35) → ST-19.
+3. Cross-browser runs (Firefox, WebKit) for ST-02, ST-07, ST-11 and the samples.
