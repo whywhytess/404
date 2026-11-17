@@ -21,10 +21,15 @@ test.beforeAll(async () => {
 });
 
 /** Intercept everything sent to the attacker domain and record it. */
+/** Referer headers seen by the attacker (must never contain an access token). */
+const attackerReferers: string[] = [];
+
 async function trapAttacker(context: BrowserContext): Promise<string[]> {
   const hits: string[] = [];
   await context.route(`${ATTACKER}/**`, async (route) => {
     hits.push(route.request().url());
+    const referer = await route.request().headerValue('referer');
+    if (referer) attackerReferers.push(referer);
     const url = route.request().url();
     await route.fulfill({
       status: 200,
@@ -316,6 +321,8 @@ test.describe('ST-11 top-level navigation', () => {
       .poll(() => hits.some((h) => h.includes('phish-self')), { timeout: 10_000 })
       .toBe(true);
     expect(page.url()).toContain('attacker.test/phish-self');
+    // Referrer-Policy: no-referrer — the access token in the URL is not leaked to the target.
+    expect(attackerReferers.filter((r) => r.includes('/_t/'))).toEqual([]);
     await context.close();
   });
 });
@@ -327,4 +334,9 @@ test('ST-12 a service worker cannot be registered', async ({ browser }) => {
   expect(r.registered).toBe(false);
   expect(r.registrations).toBe(0);
   await context.close();
+});
+
+test('no request that reached the attacker carried the access token in a Referer header', () => {
+  // Collected from every positive control and attack above (Referrer-Policy: no-referrer).
+  expect(attackerReferers.filter((r) => r.includes('/_t/'))).toEqual([]);
 });

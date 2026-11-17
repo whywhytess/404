@@ -150,6 +150,9 @@ test('student uploads: a valid ZIP is published, an unsafe ZIP is rejected, roll
   expect(siteUrl.pathname).toMatch(/^\/_t\/[^/]+\/$/);
   // The platform session cookie is not available to the content origin.
   expect(await site.evaluate(() => document.cookie)).toBe('');
+  // Opened with rel="noopener noreferrer": the site cannot reach or navigate the platform tab.
+  expect(await site.evaluate(() => window.opener)).toBeNull();
+  expect(await site.evaluate(() => document.referrer)).toBe('');
   await site.close();
   await signOut(page);
 });

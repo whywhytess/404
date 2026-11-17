@@ -15,4 +15,4 @@ Likelihood / impact: L / M / H. Status: Open, Mitigating, Closed.
 | R09 | Toolchain churn (TypeScript 7 broke typescript-eslint; MinIO images gone) | M | L | Install or lint failure after an upgrade | Pin TypeScript 6.0, SeaweedFS 4.54; lockfile committed (ADR-012) | Mitigating |
 | R10 | Port clashes with other local projects | H | L | Compose fails to bind | Web Cove uses 55432 / 59000 | Closed |
 | R11 | Phishing abuse if deployed publicly | L | M | Reports of abuse | Access needs a course membership + token; take-down (FR-29); `noindex` | Open |
-| R12 | Lost context between Claude sessions | M | M | Duplicate files or reversed decisions | `CLAUDE.md`, `docs/EXECUTION_STATUS.md`, ADRs, small commits | Mitigating |
+| R12 | Lost context between work sessions | M | M | Duplicate files or reversed decisions | `docs/EXECUTION_STATUS.md`, ADRs, small commits | Mitigating |

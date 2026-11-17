@@ -299,4 +299,8 @@ tr.selected {
   border-radius: 6px;
   background: #fff;
 }
-button.danger { background: #fff; color: var(--err-fg); border-color: var(--err-fg); }
+button.danger {
+  background: #fff;
+  color: var(--err-fg);
+  border-color: var(--err-fg);
+}
