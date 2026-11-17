@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "webcove-dev",
+      "credentials": [{ "accessKey": "webcove", "secretKey": "webcove_dev_only" }],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    }
+  ]
+}
