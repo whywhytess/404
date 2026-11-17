@@ -1,4 +1,4 @@
-import { rateLimit, type Options } from 'express-rate-limit';
+import { ipKeyGenerator, rateLimit, type Options } from 'express-rate-limit';
 import type { RequestHandler } from 'express';
 
 export interface RateLimitSettings {
@@ -33,10 +33,15 @@ function limiter(max: number, windowMs: number, key: Options['keyGenerator']): R
 export function createLoginLimiter(s: RateLimitSettings) {
   return limiter(s.loginMax, s.windowMs, (req) => {
     const email = typeof req.body?.email === 'string' ? req.body.email.toLowerCase() : '';
-    return `${req.ip}|${email}`;
+    // ipKeyGenerator groups IPv6 addresses by /56 so one host cannot rotate addresses to bypass the limit.
+    return `${ipKeyGenerator(req.ip ?? '')}|${email}`;
   });
 }
 
 export function createJoinLimiter(s: RateLimitSettings) {
-  return limiter(s.joinMax, s.windowMs, (req) => `join|${req.user?.id ?? req.ip}`);
+  return limiter(
+    s.joinMax,
+    s.windowMs,
+    (req) => `join|${req.user?.id ?? ipKeyGenerator(req.ip ?? '')}`,
+  );
 }

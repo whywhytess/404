@@ -2,7 +2,7 @@
 
 Status values: `DONE` (implemented and its tests were run and passed), `PARTIAL`,
 `NOT STARTED`, `BLOCKED`. Requirement text: SRD Tables 3.13 and 3.14.
-Last updated: 2026-11-17 (commit after `7b7c170`).
+Last updated: 2026-11-17. UI rows are covered by `tests/e2e/phase1-workflow.spec.ts`.
 
 ## Problem → requirement → design → verification (SRD Table 1.2)
 
@@ -16,14 +16,14 @@ Last updated: 2026-11-17 (commit after `7b7c170`).
 
 | FR | Pri | Status | Implementation | Tests |
 | --- | :-: | --- | --- | --- |
-| FR-01 Student registration | M | DONE (API) | `routes/auth.ts` `POST /api/auth/register` | `auth.test.ts` FR-01 (3 tests) |
-| FR-02 Sign in / sign out | M | DONE (API) | `routes/auth.ts` login, logout, me; `middleware/session.ts` | `auth.test.ts` FR-02, CSRF, rate limit |
-| FR-03 Admin creates, disables, resets staff | M | DONE (API) | `routes/admin.ts` | `admin.test.ts` (5 tests) |
+| FR-01 Student registration | M | DONE (API + UI) | `routes/auth.ts` `POST /api/auth/register` | `auth.test.ts` FR-01 (3 tests) |
+| FR-02 Sign in / sign out | M | DONE (API + UI) | `routes/auth.ts` login, logout, me; `middleware/session.ts` | `auth.test.ts` FR-02, CSRF, rate limit |
+| FR-03 Admin creates, disables, resets staff | M | DONE (API + UI) | `routes/admin.ts` | `admin.test.ts` (5 tests) |
 | FR-04 Permission matrix on every action | M | PARTIAL — enforced on all current routes; re-check as routes are added | `policy.ts`, `middleware/auth.ts` | `courses.test.ts` FR-04, every 403/404 assertion |
-| FR-05 Admin creates course, assigns/changes instructor and TAs | M | DONE (API) | `routes/courses.ts` POST `/`, POST/DELETE `/:id/staff` | `courses.test.ts` FR-05 (4 tests) |
-| FR-06 Join code, regenerate | M | DONE (API) | `auth/join-code.ts`, `POST /:id/join-code/rotate` | `courses.test.ts` FR-06/07; unit `helpers.test.ts` |
-| FR-07 Student joins with code | M | DONE (API) | `POST /api/courses/join` | `courses.test.ts` FR-06/07 |
-| FR-08 Instructor creates and edits assignment | M | DONE (API) | `routes/assignments.ts` | `assignments.test.ts` FR-08 |
+| FR-05 Admin creates course, assigns/changes instructor and TAs | M | DONE (API + UI) | `routes/courses.ts` POST `/`, POST/DELETE `/:id/staff` | `courses.test.ts` FR-05 (4 tests) |
+| FR-06 Join code, regenerate | M | DONE (API + UI) | `auth/join-code.ts`, `POST /:id/join-code/rotate` | `courses.test.ts` FR-06/07; unit `helpers.test.ts` |
+| FR-07 Student joins with code | M | DONE (API + UI) | `POST /api/courses/join` | `courses.test.ts` FR-06/07 |
+| FR-08 Instructor creates and edits assignment | M | DONE (API + UI) | `routes/assignments.ts` | `assignments.test.ts` FR-08 |
 | FR-09 Close/reopen; closed = no upload/rollback | M | PARTIAL — status, lock, audit done; upload/rollback refusal arrives with Phase 2 | `routes/assignments.ts`, ADR-005 | `assignments.test.ts` FR-09 |
 | FR-10 One ZIP per upload, open assignment, member | M | NOT STARTED | — | — |
 | FR-11 Size / count / per-file limits | M | NOT STARTED | — | ST-15 |
@@ -41,7 +41,7 @@ Last updated: 2026-11-17 (commit after `7b7c170`).
 | FR-23 Short-lived signed token | M | NOT STARTED | ADR-006 | ST-16, ST-17 |
 | FR-24 Uniform CSP, sandbox, headers | M | NOT STARTED | ADR-007 | header consistency, ST-05–12 |
 | FR-25 Content type from allow-list + `nosniff` | M | NOT STARTED | — | ST-13 |
-| FR-26 Rules on every assignment page | S | NOT STARTED | — | — |
+| FR-26 Rules on every assignment page | S | DONE (UI) | `apps/web/src/pages/AssignmentPage.tsx` `SubmissionRules` | `phase1-workflow.spec.ts` (rules heading visible) |
 | FR-27 Submission list for review | M | PARTIAL — students listed; submission columns in Phase 2 | `GET /api/assignments/:id/review` | `assignments.test.ts` FR-27 |
 | FR-28 Sandboxed iframe, previous/next, new tab | M | NOT STARTED | — | ST-03, ST-10, ST-11 |
 | FR-29 Take-down / restore with reason | S | NOT STARTED | — | — |

@@ -12,7 +12,7 @@ publish > close/freeze > review loop > automated security tests > deployment > S
 | T-005 | Admin staff API | FR-03 | T-004 | `admin.test.ts` | DONE |
 | T-006 | Courses, staff assignment, join codes | FR-05/06/07 | T-004 | `courses.test.ts` | DONE |
 | T-007 | Assignments, close/reopen, review skeleton | FR-08/09/27 | T-006 | `assignments.test.ts` | DONE |
-| T-008 | Web front end for Phase 1 flows | FR-01–09 UI | T-004–007 | Three roles can complete the Phase 1 flow in a browser | IN PROGRESS |
+| T-008 | Web front end for Phase 1 flows | FR-01–09 UI | T-004–007 | Three roles can complete the Phase 1 flow in a browser | DONE (`tests/e2e/phase1-workflow.spec.ts`) |
 | T-009 | ZIP validator package | FR-11–15, ST-14/15 | — | Malicious fixtures rejected; unit coverage ≥ 70 % | NOT STARTED |
 | T-010 | Migration 0002: submissions, versions, used subdomains | FR-16/21 | T-003 | — | NOT STARTED |
 | T-011 | Storage adapter (S3 API) + upload endpoint + atomic publish | FR-10/16/20, NFR-R1 | T-009, T-010 | Fault-injection tests pass | NOT STARTED |

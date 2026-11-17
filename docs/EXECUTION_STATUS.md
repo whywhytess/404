@@ -5,8 +5,9 @@ listed command was run and passed; `[PARTIAL]`; `[BLOCKED]`; `[NOT STARTED]`.
 
 ## Current phase
 
-Phase 1 (Trusted workflow skeleton): API done, web front end in progress.
-Next: T-008 front end → Phase 2 (ZIP validator, versions, atomic publish).
+Phase 1 (Trusted workflow skeleton): **Gate P1 passed** — API + web front end, verified by
+integration tests and a Playwright end-to-end run of the three-role workflow.
+Next: Phase 2 (ZIP validator, versions, atomic publish).
 
 ## Environment notes
 
@@ -39,7 +40,12 @@ Next: T-008 front end → Phase 2 (ZIP validator, versions, atomic publish).
 - [DONE] T-007 FR-08 assignments; FR-09 close/reopen (status + audit; upload refusal pending Phase 2); FR-27 review skeleton
 - Baseline docs: this file, `REQUIREMENTS_TRACEABILITY.md`, `ARCHITECTURE_DECISIONS.md`,
   `RISK_REGISTER.md`, `IMPLEMENTATION_BACKLOG.md`
-- Commit: `7b7c170`
+- [DONE] T-008 web front end (React + Vite): sign-in/register/change password, dashboard + join,
+  course page (join code, staff, assignments), assignment page (edit, close/reopen, rules),
+  review list, administration (courses, staff accounts, audit log)
+- Fix: login/join rate-limit keys now use `ipKeyGenerator` (IPv6 /56 grouping); found by the E2E run
+- Fix: sign-out does a full page reload so the next user is not sent to the previous user's page
+- Commits: `7b7c170`, `1f81789`, and the Phase 1 front-end commit
 
 ### Verification
 
@@ -52,6 +58,7 @@ Next: T-008 front end → Phase 2 (ZIP validator, versions, atomic publish).
 | `pnpm typecheck` | PASS |
 | `pnpm format:check` | PASS |
 | `npx vitest run` | PASS — 5 files, 39 tests (unit 6, integration 33) |
+| `pnpm test:e2e` (Playwright, Chromium) | PASS — 4 tests: admin → instructor → student → close |
 | GitHub Actions | NOT RUN — no remote configured |
 
 ### Risks / decisions
@@ -66,6 +73,6 @@ Next: T-008 front end → Phase 2 (ZIP validator, versions, atomic publish).
 
 ### Next 3 tasks
 
-1. T-008 web front end for Phase 1 flows (login/register, dashboard, join, admin course/staff, instructor assignments, close/reopen).
-2. T-009 ZIP validator package with malicious fixtures (ST-14, ST-15).
-3. T-010/T-011 submissions + versions schema, S3 adapter, atomic publish with fault injection.
+1. T-009 ZIP validator package with malicious fixtures (ST-14, ST-15).
+2. T-010/T-011 submissions + versions schema, S3 adapter, atomic publish with fault injection.
+3. T-012 upload refused when closed / course ended (row-lock race test), then the upload UI.

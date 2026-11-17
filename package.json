@@ -20,10 +20,12 @@
     "infra:up": "docker compose -f infra/compose.yaml up -d --wait",
     "infra:down": "docker compose -f infra/compose.yaml down",
     "db:migrate": "pnpm --filter @webcove/api db:migrate",
-    "db:seed:demo": "pnpm --filter @webcove/api db:seed:demo"
+    "db:seed:demo": "pnpm --filter @webcove/api db:seed:demo",
+    "test:e2e": "playwright test tests/e2e"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "eslint": "^10.15.0",
     "globals": "^17.14.0",
